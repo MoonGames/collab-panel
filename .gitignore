@@ -1,2 +1,9 @@
+*~
+
+# java files
 *.class
+
+# build files
+/build
+/deploy
 
