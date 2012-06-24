@@ -106,17 +106,17 @@ public class JustCanvas extends JPanel implements Visible, CanvasImageChangeList
         g.fillRect(0, 0, getWidth(), getHeight());
         int size = Math.min(getWidth(), getHeight());
         float scale = 1;
-        if (size < logo.getWidth()) {
-            scale = Math.max(0.25f, size / logo.getWidth());
+        if ((size / 2f) < logo.getWidth()) {
+            scale = Math.max(0.1f, (size / 2f) / logo.getWidth());
             g.scale(scale, scale);
         }
-        g.drawImage(logo, getWidth() - (int) (logo.getWidth() * scale), getHeight() - (int) (logo.getHeight() * scale), null);
-        g.scale(1, 1);
+        g.drawImage(logo, 0, (int) (getHeight() / scale) - logo.getHeight(), null);
+        g.scale(1 / scale, 1 / scale);
     }
 
     @Override
     public void setMouseCursor(MouseCursor mouseCursor) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        //TODO:
     }
 
     @Override
@@ -129,7 +129,7 @@ public class JustCanvas extends JPanel implements Visible, CanvasImageChangeList
 
     @Override
     public void setToolImage(ToolImage toolImage) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        //TODO:
     }
 
     @Override

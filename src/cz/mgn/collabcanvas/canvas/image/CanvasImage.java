@@ -268,7 +268,7 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable, 
         synchronized (this) {
             if (selectedLayer != null) {
                 ArrayList<PaintImage> paintImages = paintData.getPaintImages();
-                Dirty dirty = new UnionDirty();
+                UnionDirty dirty = new UnionDirty();
                 for (PaintImage paintImage : paintImages) {
                     BufferedImage image = paintImage.getImage();
                     ArrayList<Point> applyPoints = paintImage.getApplyPoints();
@@ -288,10 +288,11 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable, 
                             } else {
                                 ImageProcessor.paintRemove(selectedLayer.getImage(), pImage, applyPoint.x, applyPoint.y);
                             }
-
                         }
                     }
                 }
+                reconstructImage(dirty.getSingleRectangle());
+                informAboutUpdate(dirty.getSingleRectangle());
             }
         }
     }
@@ -325,8 +326,9 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable, 
                 layersNew2.removeAll(layers);
                 layers.addAll(layersNew2);
             }
-
-            selectedLayer = getLayerByID(selectedLayer.getID());
+            if (selectedLayer != null) {
+                selectedLayer = getLayerByID(selectedLayer.getID());
+            }
             Rectangle rect = new Rectangle(0, 0, width, height);
             reconstructImage(rect);
             informAboutUpdate(rect);

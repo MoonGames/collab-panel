@@ -7,8 +7,6 @@ package cz.mgn.collabcanvas.canvas.image.network;
 import cz.mgn.collabcanvas.canvas.image.imageprocessing.ImageProcessor;
 import cz.mgn.collabcanvas.interfaces.networkable.NetworkIDGenerator;
 import cz.mgn.collabcanvas.interfaces.networkable.NetworkListener;
-import java.awt.Color;
-import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -38,7 +36,6 @@ public class NetworkImage {
         this.layerID = layerID;
         this.canvasID = canvasID;
         this.idGenerator = idGenerator;
-        setResolution(width, height);
     }
 
     protected void controlTimeOutEdits() {
@@ -153,7 +150,9 @@ public class NetworkImage {
     }
 
     public void setResolution(int width, int height) {
-        makeEdits();
+        if (imageAdd != null) {
+            makeEdits();
+        }
         imageRemove = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
         imageAdd = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
         int w = width / BLOCK_SIZE + 1;

@@ -25,8 +25,9 @@ public class Layer {
     }
 
     public Layer(int id, int width, int height, NetworkImage networkImage) {
-        this(id, width, height);
+        this.id = id;
         this.networkImage = networkImage;
+        setResolution(width, height);
     }
 
     public NetworkImage getNetworkImage() {

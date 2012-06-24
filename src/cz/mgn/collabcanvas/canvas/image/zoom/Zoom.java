@@ -4,6 +4,8 @@
  */
 package cz.mgn.collabcanvas.canvas.image.zoom;
 
+import java.awt.AlphaComposite;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -37,7 +39,11 @@ public class Zoom {
         g.scale(zoom, zoom);
         int x2 = update.x + update.width;
         int y2 = update.y + update.height;
-        g.drawImage(to, update.x, update.y, x2, y2, update.x, update.y, x2, y2, null);
+        g.setComposite(AlphaComposite.Clear);
+        g.setColor(Color.WHITE);
+        g.fillRect(update.x, update.y, update.width, update.height);
+        g.setComposite(AlphaComposite.SrcOver);
+        g.drawImage(from, update.x, update.y, x2, y2, update.x, update.y, x2, y2, null);
         g.dispose();
     }
 

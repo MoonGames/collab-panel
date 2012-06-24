@@ -20,4 +20,11 @@ public class UnionDirty extends Dirty {
             dirtyRectangles.get(0).add(rect);
         }
     }
+
+    public Rectangle getSingleRectangle() {
+        if (dirtyRectangles.isEmpty()) {
+            return new Rectangle();
+        }
+        return dirtyRectangles.get(0);
+    }
 }
