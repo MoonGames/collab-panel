@@ -100,6 +100,8 @@ public interface Paintable {
     /**
      * vrati cast vsech vrstev po jejich rekombinaci, null v pripade ze obdelnik
      * zasahuje mimo obrazek
+     * 
+     * @param rect if null, return all image
      */
     public BufferedImage getImage(Rectangle rect);
 

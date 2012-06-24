@@ -71,6 +71,10 @@ public class CollabCanvas implements Informing {
     public Zoomable getZoomable() {
         return canvasImage;
     }
+    
+    public void destroy() {
+        canvasImage.destroy();
+    }
 
     @Override
     public Set<InfoListener> getInfoListeners() {

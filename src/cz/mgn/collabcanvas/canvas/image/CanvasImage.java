@@ -85,7 +85,7 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable, 
     public BufferedImage getZoomedImage() {
         return zoomedImage;
     }
-    
+
     public Selection getSelection() {
         return selection;
     }
@@ -467,6 +467,9 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable, 
     @Override
     public BufferedImage getImage(Rectangle rect) {
         synchronized (this) {
+            if (rect == null) {
+                rect = new Rectangle(0, 0, getWidth(), getHeight());
+            }
             BufferedImage image = new BufferedImage(rect.width, rect.height, BufferedImage.TYPE_4BYTE_ABGR);
             Graphics2D g = (Graphics2D) image.getGraphics();
             g.drawImage(normalImage, 0, 0, rect.width, rect.height,
