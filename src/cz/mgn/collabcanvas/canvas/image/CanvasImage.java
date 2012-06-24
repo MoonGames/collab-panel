@@ -467,7 +467,7 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable, 
     @Override
     public BufferedImage getImage(Rectangle rect) {
         synchronized (this) {
-            if (rect == null) {
+            if(rect == null) {
                 rect = new Rectangle(0, 0, getWidth(), getHeight());
             }
             BufferedImage image = new BufferedImage(rect.width, rect.height, BufferedImage.TYPE_4BYTE_ABGR);

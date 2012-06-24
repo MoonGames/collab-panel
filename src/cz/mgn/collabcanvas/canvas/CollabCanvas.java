@@ -76,11 +76,6 @@ public class CollabCanvas implements Informing {
         canvasImage.destroy();
     }
 
-    public void destroy() {
-        canvasImage.destroy();
-    }
-
-
     @Override
     public Set<InfoListener> getInfoListeners() {
         return canvasImage.getInfoListeners();
