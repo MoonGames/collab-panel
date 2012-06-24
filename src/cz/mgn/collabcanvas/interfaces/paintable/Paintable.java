@@ -94,6 +94,8 @@ public interface Paintable {
     /**
      * vrati cast oznacene vrstvy, null v pripade ze obdelnik zasahuje mimo
      * vrstvu
+     * 
+     * @param rect if null, return all layer
      */
     public BufferedImage getSelectedLayerImage(Rectangle rect);
 
