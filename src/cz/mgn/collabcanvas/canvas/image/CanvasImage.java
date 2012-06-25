@@ -115,7 +115,9 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable, 
             if (layer.getOpaqueness() > 0) {
                 g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, layer.getOpaqueness()));
                 BufferedImage img = layer.getImage();
-                img = layer.getNetworkImage().addLocalChanges(img, update.x, update.y, update.width, update.height);
+                if (network) {
+                    img = layer.getNetworkImage().addLocalChanges(img, update.x, update.y, update.width, update.height);
+                }
                 g.drawImage(img, 0, 0, update.width, update.height,
                         update.x, update.y, x2, y2, null);
             }

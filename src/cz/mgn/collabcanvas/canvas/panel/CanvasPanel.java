@@ -45,9 +45,9 @@ public class CanvasPanel extends JPanel implements Informing, Listenable, Canvas
     private void init() {
         setLayout(new BorderLayout());
         canvas = new JustCanvas(canvasImage);
-        addMouseListener(this);
-        addMouseMotionListener(this);
-        addMouseWheelListener(this);
+        canvas.addMouseListener(this);
+        canvas.addMouseMotionListener(this);
+        canvas.addMouseWheelListener(this);
         scrollPane = new JScrollPane(canvas);
         add(scrollPane, BorderLayout.CENTER);
     }
