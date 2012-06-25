@@ -17,6 +17,9 @@ public class CollabCanvasFactory {
      * vytvori sitovy CollabCanvas
      */
     public static CollabCanvas createNetworkCollabCanvas(NetworkIDGenerator idGenerator, int canvasID) {
+        if (idGenerator == null) {
+            throw new NullPointerException("Network ID generator cant be null!");
+        }
         return new CollabCanvas(true, idGenerator, canvasID);
     }
 
