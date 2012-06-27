@@ -6,6 +6,9 @@ package cz.mgn.collabcanvas;
 
 import cz.mgn.collabcanvas.canvas.CollabCanvas;
 import cz.mgn.collabcanvas.factory.CollabCanvasFactory;
+import cz.mgn.collabcanvas.interfaces.listenable.CollabPanelKeyEvent;
+import cz.mgn.collabcanvas.interfaces.listenable.CollabPanelListener;
+import cz.mgn.collabcanvas.interfaces.listenable.CollabPanelMouseEvent;
 import cz.mgn.collabcanvas.interfaces.networkable.NetworkIDGenerator;
 import cz.mgn.collabcanvas.interfaces.paintable.PaintData;
 import cz.mgn.collabcanvas.interfaces.paintable.PaintImage;
@@ -25,13 +28,12 @@ import javax.swing.JPanel;
 public class Main {
 
     public static void main(String args[]) {
-        //test();
+        test();
     }
 
     @Deprecated
     public static void test() {
         JFrame frame = new JFrame("Test frame");
-        frame.setSize(800, 600);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setVisible(true);
 
@@ -39,17 +41,10 @@ public class Main {
         panel.setBackground(Color.GREEN);
         panel.setSize(100, 100);
 
-        CollabCanvas canvas = CollabCanvasFactory.createNetworkCollabCanvas(new NetworkIDGenerator() {
-
-            protected int id = 0;
-
-            @Override
-            public int generateNextID() {
-                return ++id;
-            }
-        }, 0);
+        CollabCanvas canvas = CollabCanvasFactory.createLocalCollabCanvas(0);
         frame.getContentPane().setLayout(new BorderLayout());
         frame.getContentPane().add(canvas.getCanvasComponent(), BorderLayout.CENTER);
+        frame.setSize(800, 600);
         frame.pack();
 
         canvas.getPaintable().setResolution(200, 200);
@@ -85,6 +80,19 @@ public class Main {
                     }
                 });
                 return pi;
+            }
+        });
+        
+        canvas.getListenable().addListener(new CollabPanelListener() {
+
+            @Override
+            public void keyEvent(CollabPanelKeyEvent keyEvent) {
+                System.out.println("key event");
+            }
+
+            @Override
+            public void mouseEvent(CollabPanelMouseEvent mouseEvent) {
+                System.out.println("mouse event");
             }
         });
     }

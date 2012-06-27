@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="CollabPanel" default="createJar" basedir="./">
+    <property name="srcdir" location="./src" />
+    <property name="bindir" location="./build" />
+    <property name="deploydir" location="./deploy" />
+    <property name="jarname" value="CollabPanel.jar" />
+    <property name="mainclass" value="cz.mgn.collabcanvas.Main" />
+ 
+    <target name="init">
+        <delete dir="${bindir}" />
+        <mkdir dir="${bindir}"/>
+        <copy todir="build/resources">
+            <fileset dir="src/resources"/>
+        </copy>
+    </target>
+
+    <target name="compile" depends="init">
+        <javac srcdir="${srcdir}" destdir="${bindir}" includes="**/*" source="1.6" target="1.6" />
+    </target>
+
+    <target name="jarInit" depends="compile">
+        <delete dir="${deploydir}" />
+        <mkdir dir="${deploydir}"/>
+    </target>
+ 
+    <target name="createJar" depends="jarInit">
+        <jar destfile="${deploydir}/${jarname}">
+            <fileset dir="${bindir}"/>
+            <manifest>
+                <attribute name="Main-Class" value="${mainclass}"/>
+                <attribute name="Class-Path" value=""/>
+            </manifest>
+        </jar>
+    </target>
+</project>
