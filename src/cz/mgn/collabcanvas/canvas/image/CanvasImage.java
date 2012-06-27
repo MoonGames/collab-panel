@@ -9,7 +9,6 @@ import cz.mgn.collabcanvas.canvas.image.layers.Layer;
 import cz.mgn.collabcanvas.canvas.image.network.NetworkImage;
 import cz.mgn.collabcanvas.canvas.image.selection.Selection;
 import cz.mgn.collabcanvas.canvas.image.zoom.Zoom;
-import cz.mgn.collabcanvas.canvas.utils.dirty.Dirty;
 import cz.mgn.collabcanvas.canvas.utils.dirty.UnionDirty;
 import cz.mgn.collabcanvas.interfaces.informing.InfoListener;
 import cz.mgn.collabcanvas.interfaces.informing.Informing;
@@ -258,7 +257,9 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable, 
                     ImageProcessor.removeFromImage(layerImage, updateImage, x, y, x, y, w, h);
                 }
                 layer.getNetworkImage().updateReceived(update.getUpdateID());
-                informAboutUpdate(new Rectangle(update.getUpdateCoordinates(), new Dimension(update.getUpdateImage().getWidth(), update.getUpdateImage().getHeight())));
+                Rectangle dirty = new Rectangle(update.getUpdateCoordinates(), new Dimension(update.getUpdateImage().getWidth(), update.getUpdateImage().getHeight()));
+                reconstructImage(dirty);
+                informAboutUpdate(dirty);
             }
         }
     }
