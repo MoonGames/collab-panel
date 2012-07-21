@@ -51,7 +51,9 @@ public class JustCanvas extends JPanel implements Visible, CanvasImageChangeList
     }
 
     public Point translateMousePoint(Point point) {
-        Point result = new Point(point.x - (getWidth() - mainImage.getImage().getWidth()) / 2, point.y - (getHeight() - mainImage.getImage().getHeight()) / 2);
+        Point result = new Point(
+                point.x - (getWidth() - mainImage.getImage().getWidth()) / 2,
+                point.y - (getHeight() - mainImage.getImage().getHeight()) / 2);
         result.x /= canvasImage.getZoom();
         result.y /= canvasImage.getZoom();
         return result;
@@ -199,6 +201,7 @@ public class JustCanvas extends JPanel implements Visible, CanvasImageChangeList
         synchronized (this) {
             mouseX = e.getX();
             mouseY = e.getY();
+            repaint();
         }
     }
 }
