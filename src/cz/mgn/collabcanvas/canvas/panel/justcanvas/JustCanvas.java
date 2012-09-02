@@ -195,6 +195,7 @@ public class JustCanvas extends JPanel implements Visible, CanvasImageChangeList
         synchronized (this) {
             mouseX = e.getX();
             mouseY = e.getY();
+            repaint();
         }
     }
 
