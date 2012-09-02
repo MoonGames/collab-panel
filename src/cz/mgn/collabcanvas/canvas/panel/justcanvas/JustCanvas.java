@@ -153,6 +153,8 @@ public class JustCanvas extends JPanel implements Visible, CanvasImageChangeList
     @Override
     public void imageResized(int width, int height) {
         synchronized (this) {
+            setPreferredSize(new Dimension(width, height));
+            setSize(getPreferredSize());
             mainImage.imageResized(width, height);
         }
     }

@@ -15,7 +15,6 @@ import cz.mgn.collabcanvas.interfaces.listenable.CollabPanelMouseEvent;
 import cz.mgn.collabcanvas.interfaces.listenable.Listenable;
 import cz.mgn.collabcanvas.interfaces.visible.Visible;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.event.*;
 import java.util.Set;
