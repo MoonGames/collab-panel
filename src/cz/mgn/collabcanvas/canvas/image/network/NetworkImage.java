@@ -179,14 +179,12 @@ public class NetworkImage {
 
     public BufferedImage addLocalChanges(BufferedImage source, int x, int y, int width, int height) {
         synchronized (this) {
-            BufferedImage result = new BufferedImage(source.getWidth(), source.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
-            source.copyData(result.getRaster());
-            editsToImage(result, x, y, width, height);
+            editsToImage(source, x, y, width, height);
             if (anyChange) {
-                addToImage(result, x, y, width, height);
-                removeFromImage(result, x, y, width, height);
+                addToImage(source, x, y, width, height);
+                removeFromImage(source, x, y, width, height);
             }
-            return result;
+            return source;
         }
     }
 
