@@ -172,7 +172,7 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable, 
                         listener.unreachedUpdateRemoved(update);
                     }
                 }
-            }, idGenerator, layerID, canvasID, width, height));
+            }, idGenerator, layerID, canvasID));
         }
         return new Layer(layerID, width, height);
     }

@@ -30,8 +30,10 @@ public class NetworkImage {
     protected boolean anyChange = false;
     protected boolean[][] changesAdd = null;
     protected boolean[][] changesRemove = null;
+    protected BufferedImage layerImageCopy = null;
+    protected boolean isLayerImageInvalid = true;
 
-    public NetworkImage(NetworkListener listener, NetworkIDGenerator idGenerator, int layerID, int canvasID, int width, int height) {
+    public NetworkImage(NetworkListener listener, NetworkIDGenerator idGenerator, int layerID, int canvasID) {
         this.listener = listener;
         this.layerID = layerID;
         this.canvasID = canvasID;
@@ -159,12 +161,14 @@ public class NetworkImage {
         int h = height / BLOCK_SIZE + 1;
         changesRemove = new boolean[w][h];
         changesAdd = new boolean[w][h];
+        layerImageCopy = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
     }
 
     public void paintRemove(BufferedImage remove, int x, int y) {
         synchronized (this) {
             anyChange = true;
             ImageProcessor.paintRemove(imageRemove, remove, x, y);
+            ImageProcessor.removeFromImage(layerImageCopy, remove, x, y);
             changesArrayUpdate(changesRemove, x, y, remove.getWidth(), remove.getHeight());
         }
     }
@@ -173,26 +177,41 @@ public class NetworkImage {
         synchronized (this) {
             anyChange = true;
             ImageProcessor.paintAdd(imageAdd, add, x, y);
+            ImageProcessor.addToImage(layerImageCopy, add, x, y);
             changesArrayUpdate(changesAdd, x, y, add.getWidth(), add.getHeight());
         }
     }
 
     public BufferedImage addLocalChanges(BufferedImage source, int x, int y, int width, int height) {
         synchronized (this) {
-            editsToImage(source, x, y, width, height);
-            if (anyChange) {
-                addToImage(source, x, y, width, height);
-                removeFromImage(source, x, y, width, height);
+            if (isLayerImageInvalid) {
+                isLayerImageInvalid = false;
+                layerImageCopy = new BufferedImage(source.getWidth(), source.getHeight(), source.getType());
+                source.copyData(layerImageCopy.getRaster());
+                editsToImage(layerImageCopy, x, y, width, height);
+                if (anyChange) {
+                    addToImage(layerImageCopy, x, y, width, height);
+                    removeFromImage(layerImageCopy, x, y, width, height);
+                }
             }
-            return source;
+            return layerImageCopy;
+        }
+    }
+
+    public void invalidate() {
+        synchronized (this) {
+            isLayerImageInvalid = true;
         }
     }
 
     public void updateReceived(int updateID) {
-        for (int i = 0; i < edits.size(); i++) {
-            if (edits.get(i).getUpdateID() == updateID) {
-                edits.remove(i);
-                return;
+        invalidate();
+        synchronized (this) {
+            for (int i = 0; i < edits.size(); i++) {
+                if (edits.get(i).getUpdateID() == updateID) {
+                    edits.remove(i);
+                    return;
+                }
             }
         }
     }

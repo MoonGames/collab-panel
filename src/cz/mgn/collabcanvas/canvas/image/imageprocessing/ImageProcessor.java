@@ -27,6 +27,10 @@ public class ImageProcessor {
         g.dispose();
     }
 
+    public static void addToImage(BufferedImage image, BufferedImage add, int x, int y) {
+        addToImage(image, add, x, y, x, y, add.getWidth(), add.getHeight());
+    }
+
     public static void addToImage(BufferedImage image, BufferedImage add, int x, int y, int uX, int uY, int uWidth, int uHeight) {
         int dx1 = Math.max(x, uX);
         int dy1 = Math.max(y, uY);
@@ -41,6 +45,10 @@ public class ImageProcessor {
             g.drawImage(add, dx1, dy1, dx2, dy2, sx1, sy1, sx2, sy2, null);
             g.dispose();
         }
+    }
+
+    public static void removeFromImage(BufferedImage image, BufferedImage remove, int x, int y) {
+        removeFromImage(image, remove, x, y, x, y, remove.getWidth(), remove.getHeight());
     }
 
     public static void removeFromImage(BufferedImage image, BufferedImage remove, int x, int y, int uX, int uY, int uWidth, int uHeight) {
