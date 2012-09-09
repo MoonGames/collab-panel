@@ -6,6 +6,8 @@ package cz.mgn.collabcanvas.canvas.panel.justcanvas;
 
 import cz.mgn.collabcanvas.canvas.image.CanvasImage;
 import cz.mgn.collabcanvas.canvas.image.CanvasImageChangeListener;
+import cz.mgn.collabcanvas.interfaces.informing.InfoListener;
+import cz.mgn.collabcanvas.interfaces.informing.Informing;
 import cz.mgn.collabcanvas.interfaces.visible.MouseCursor;
 import cz.mgn.collabcanvas.interfaces.visible.ToolCursor;
 import cz.mgn.collabcanvas.interfaces.visible.ToolImage;
@@ -16,6 +18,8 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -25,8 +29,10 @@ import javax.swing.JPanel;
  *
  * @author indy
  */
-public class JustCanvas extends JPanel implements Visible, CanvasImageChangeListener, MouseListener, MouseMotionListener {
+public class JustCanvas extends JPanel implements Informing, Visible, CanvasImageChangeListener, MouseListener, MouseMotionListener {
 
+    //info
+    protected Set<InfoListener> infoListeners = new TreeSet<InfoListener>();
     protected static final Color background = new Color(0xfff6f6f6);
     protected CanvasImage canvasImage;
     //
@@ -51,11 +57,16 @@ public class JustCanvas extends JPanel implements Visible, CanvasImageChangeList
     }
 
     public Point translateMousePoint(Point point) {
-        Point result = new Point(
-                point.x - (getWidth() - mainImage.getImage().getWidth()) / 2,
-                point.y - (getHeight() - mainImage.getImage().getHeight()) / 2);
+        Point result = translateMousePointNoZoom(point);
         result.x /= canvasImage.getZoom();
         result.y /= canvasImage.getZoom();
+        return result;
+    }
+
+    public Point translateMousePointNoZoom(Point point) {
+        Point result = new Point(
+                point.x - Math.max(getWidth() - mainImage.getImage().getWidth(), 0) / 2,
+                point.y - Math.max(getHeight() - mainImage.getImage().getHeight(), 0) / 2);
         return result;
     }
 
@@ -83,8 +94,8 @@ public class JustCanvas extends JPanel implements Visible, CanvasImageChangeList
                 ig.drawImage(toolCursor.getCursorImage(), 0, 0, null);
                 ig.dispose();
             }
-            int xx = mouseX + toolCursor.getRelativeLocatoin().x;
-            int yy = mouseY + toolCursor.getRelativeLocatoin().y;
+            int xx = (int) (mouseX + toolCursor.getRelativeLocatoin().x * canvasImage.getZoom());
+            int yy = (int) (mouseY + toolCursor.getRelativeLocatoin().y * canvasImage.getZoom());
             if (toolCursor.getLocationMode() == ToolCursor.LOCATION_MODE_CENTER) {
                 xx -= img.getWidth() / 2;
                 yy -= img.getHeight() / 2;
@@ -114,6 +125,24 @@ public class JustCanvas extends JPanel implements Visible, CanvasImageChangeList
         }
         g.drawImage(logo, 0, (int) (getHeight() / scale) - logo.getHeight(), null);
         g.scale(1 / scale, 1 / scale);
+    }
+
+    protected void infoInformings() {
+        int x = mouseX, y = mouseY;
+        if (x >= 0 && y >= 0) {
+            Point translatedMousePoint = translateMousePoint(new Point(x, y));
+            if (translatedMousePoint.x > canvasImage.getWidth() || translatedMousePoint.y > canvasImage.getHeight()) {
+                x = -1;
+                y = -1;
+            }
+            if (x >= 0 && y >= 0) {
+                x = translatedMousePoint.x;
+                y = translatedMousePoint.y;
+            }
+        }
+        for (InfoListener infoListener : infoListeners) {
+            infoListener.mouseMoved(x, y);
+        }
     }
 
     @Override
@@ -187,7 +216,9 @@ public class JustCanvas extends JPanel implements Visible, CanvasImageChangeList
         synchronized (this) {
             mouseX = -1;
             mouseY = -1;
+            repaint();
         }
+        infoInformings();
     }
 
     @Override
@@ -197,6 +228,7 @@ public class JustCanvas extends JPanel implements Visible, CanvasImageChangeList
             mouseY = e.getY();
             repaint();
         }
+        infoInformings();
     }
 
     @Override
@@ -205,6 +237,28 @@ public class JustCanvas extends JPanel implements Visible, CanvasImageChangeList
             mouseX = e.getX();
             mouseY = e.getY();
             repaint();
+        }
+        infoInformings();
+    }
+
+    @Override
+    public Set<InfoListener> getInfoListeners() {
+        synchronized (this) {
+            return infoListeners;
+        }
+    }
+
+    @Override
+    public void addInfoListener(InfoListener listener) {
+        synchronized (this) {
+            infoListeners.add(listener);
+        }
+    }
+
+    @Override
+    public boolean removeInfoListener(InfoListener listener) {
+        synchronized (this) {
+            return infoListeners.remove(listener);
         }
     }
 }

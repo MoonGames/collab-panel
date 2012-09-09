@@ -26,13 +26,11 @@ import javax.swing.JScrollPane;
  *
  * @author indy
  */
-public class CanvasPanel extends JPanel implements Informing, Listenable, CanvasImageChangeListener, MouseListener, MouseMotionListener, MouseWheelListener {
+public class CanvasPanel extends JPanel implements Listenable, CanvasImageChangeListener, MouseListener, MouseMotionListener, MouseWheelListener {
 
     protected CanvasImage canvasImage;
     protected JScrollPane scrollPane;
     protected JustCanvas canvas;
-    //info
-    protected Set<InfoListener> infoListeners = new TreeSet<InfoListener>();
     //listeners
     protected Set<CollabPanelListener> panelListeners = new TreeSet<CollabPanelListener>();
 
@@ -56,7 +54,7 @@ public class CanvasPanel extends JPanel implements Informing, Listenable, Canvas
     }
 
     public Informing getInforming() {
-        return this;
+        return canvas;
     }
 
     public Listenable getListenable() {
@@ -97,27 +95,6 @@ public class CanvasPanel extends JPanel implements Informing, Listenable, Canvas
     @Override
     public void imageResized(int width, int height) {
         canvas.imageResized(width, height);
-    }
-
-    @Override
-    public Set<InfoListener> getInfoListeners() {
-        synchronized (this) {
-            return infoListeners;
-        }
-    }
-
-    @Override
-    public void addInfoListener(InfoListener listener) {
-        synchronized (this) {
-            infoListeners.add(listener);
-        }
-    }
-
-    @Override
-    public boolean removeInfoListener(InfoListener listener) {
-        synchronized (this) {
-            return infoListeners.remove(listener);
-        }
     }
 
     @Override
