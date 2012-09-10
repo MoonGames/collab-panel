@@ -191,7 +191,10 @@ public class JustCanvas extends JPanel implements Informing, Visible, CanvasImag
 
     @Override
     public void setToolImage(ToolImage toolImage) {
-        //TODO:
+        synchronized(this) {
+            this.toolImage = toolImage;
+            repaint();
+        }
     }
 
     @Override

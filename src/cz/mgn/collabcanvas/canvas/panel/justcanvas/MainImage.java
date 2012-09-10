@@ -74,10 +74,10 @@ public class MainImage {
         image = new BufferedImage(width + 2, height + 2, BufferedImage.TYPE_4BYTE_ABGR);
         Graphics2D g = (Graphics2D) image.getGraphics();
         g.setColor(Color.WHITE);
-        g.drawRect(0, 0, width, height);
+        g.drawRect(0, 0, width + 1, height + 1);
         g.setColor(Color.BLACK);
         g.setStroke(new BasicStroke(1f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 1f, new float[]{2f}, 0f));
-        g.drawRect(0, 0, width, height);
+        g.drawRect(0, 0, width + 1, height + 1);
         g.dispose();
         generateAlpha();
     }
