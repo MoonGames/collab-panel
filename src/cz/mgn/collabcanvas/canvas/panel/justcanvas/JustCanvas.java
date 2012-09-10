@@ -39,6 +39,7 @@ public class JustCanvas extends JPanel implements Informing, Visible, CanvasImag
     protected MainImage mainImage = new MainImage();
     protected static BufferedImage logo;
     protected ToolCursor toolCursor;
+    protected ToolImage toolImage;
     protected int mouseX = -1;
     protected int mouseY = -1;
 
@@ -105,6 +106,36 @@ public class JustCanvas extends JPanel implements Informing, Visible, CanvasImag
     }
 
     protected void paintToolImage(Graphics2D g) {
+        if (toolImage != null) {
+            Rectangle clip = g.getClipBounds();
+
+            BufferedImage img = mainImage.getImage();
+            int w = img.getWidth();
+            int h = img.getHeight();
+            int x = (getWidth() - w) / 2;
+            int y = (getHeight() - h) / 2;
+            g.clip(new Rectangle(x, y, w, h));
+
+            float zoom = canvasImage.getZoom();
+            if (toolImage.isScalingSupported()) {
+                img = toolImage.getScaledToolImage(zoom);
+            } else {
+
+                w = (int) (toolImage.getToolImage().getWidth() * zoom);
+                h = (int) (toolImage.getToolImage().getHeight() * zoom);
+                img = new BufferedImage(w, h, BufferedImage.TYPE_4BYTE_ABGR);
+                Graphics2D g2 = (Graphics2D) img.getGraphics();
+                g2.drawImage(toolImage.getToolImage(), 0, 0, w, h, null);
+                g2.dispose();
+            }
+            x = mouseX;
+            y = mouseY;
+            x += toolImage.getRelativeLocatoin().x * zoom;
+            y += toolImage.getRelativeLocatoin().y * zoom;
+            g.drawImage(img, x, y, null);
+
+            g.setClip(clip);
+        }
     }
 
     protected void paintImage(Graphics2D g) {

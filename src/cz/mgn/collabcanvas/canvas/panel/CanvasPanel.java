@@ -6,9 +6,9 @@ package cz.mgn.collabcanvas.canvas.panel;
 
 import cz.mgn.collabcanvas.canvas.image.CanvasImage;
 import cz.mgn.collabcanvas.canvas.image.CanvasImageChangeListener;
+import cz.mgn.collabcanvas.canvas.panel.events.CanvasKeyHandler;
 import cz.mgn.collabcanvas.canvas.panel.events.CanvasMouseEvent;
 import cz.mgn.collabcanvas.canvas.panel.justcanvas.JustCanvas;
-import cz.mgn.collabcanvas.interfaces.informing.InfoListener;
 import cz.mgn.collabcanvas.interfaces.informing.Informing;
 import cz.mgn.collabcanvas.interfaces.listenable.CollabPanelListener;
 import cz.mgn.collabcanvas.interfaces.listenable.CollabPanelMouseEvent;
@@ -33,6 +33,7 @@ public class CanvasPanel extends JPanel implements Listenable, CanvasImageChange
     protected JustCanvas canvas;
     //listeners
     protected Set<CollabPanelListener> panelListeners = new TreeSet<CollabPanelListener>();
+    protected CanvasKeyHandler keyHandler;
 
     public CanvasPanel(CanvasImage canvasImage) {
         this.canvasImage = canvasImage;
@@ -40,11 +41,17 @@ public class CanvasPanel extends JPanel implements Listenable, CanvasImageChange
     }
 
     private void init() {
+        keyHandler = new CanvasKeyHandler(panelListeners);
+
         setLayout(new BorderLayout());
         canvas = new JustCanvas(canvasImage);
         canvas.addMouseListener(this);
         canvas.addMouseMotionListener(this);
         canvas.addMouseWheelListener(this);
+        
+        canvas.addKeyListener(keyHandler);
+        canvas.addMouseListener(keyHandler);
+        
         scrollPane = new JScrollPane(canvas);
         add(scrollPane, BorderLayout.CENTER);
     }
