@@ -106,7 +106,7 @@ public class JustCanvas extends JPanel implements Informing, Visible, CanvasImag
     }
 
     protected void paintToolImage(Graphics2D g) {
-        if (toolImage != null) {
+        if (toolImage != null && mouseX >= 0) {
             Rectangle clip = g.getClipBounds();
 
             BufferedImage img = mainImage.getImage();
