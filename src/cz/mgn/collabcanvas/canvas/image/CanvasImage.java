@@ -502,6 +502,7 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable, 
             if (z != this.zoom.getZoom()) {
                 Point size = transformPoint(new Point(width, height));
                 zoomedImage = new BufferedImage(size.x, size.y, BufferedImage.TYPE_4BYTE_ABGR);
+                selection.setOutlineZoom(zoom);
                 Rectangle rect = new Rectangle(0, 0, width, height);
                 reconstructZoomedImage(rect);
                 informAboutSize();
