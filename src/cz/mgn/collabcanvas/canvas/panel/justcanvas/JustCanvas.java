@@ -235,6 +235,7 @@ public class JustCanvas extends JPanel implements Informing, Visible, CanvasImag
 
     @Override
     public void mousePressed(MouseEvent e) {
+        requestFocus();
     }
 
     @Override
