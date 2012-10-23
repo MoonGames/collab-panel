@@ -218,14 +218,11 @@ public class NetworkImage {
         }
     }
 
-    public void invalidate() {
-        synchronized (this) {
-            isLayerImageInvalid = true;
-        }
+    protected void invalidate() {
+        isLayerImageInvalid = true;
     }
 
     public void updateReceived(int updateID) {
-        invalidate();
         synchronized (this) {
             for (int i = 0; i < edits.size(); i++) {
                 if (edits.get(i).getUpdateID() == updateID) {
@@ -233,6 +230,7 @@ public class NetworkImage {
                     return;
                 }
             }
+            invalidate();
         }
     }
 

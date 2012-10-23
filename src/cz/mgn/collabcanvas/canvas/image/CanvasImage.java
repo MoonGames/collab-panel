@@ -17,11 +17,6 @@
  * You should have received a copy of the GNU General Public License
  * along with Collab desktop.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package cz.mgn.collabcanvas.canvas.image;
 
 import cz.mgn.collabcanvas.canvas.image.imageprocessing.ImageProcessor;
@@ -102,7 +97,9 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable, 
     }
 
     public BufferedImage getZoomedImage() {
-        return zoomedImage;
+        synchronized (this) {
+            return zoomedImage;
+        }
     }
 
     public Selection getSelection() {
@@ -112,10 +109,7 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable, 
     protected void reconstructImage(Rectangle update) {
         BufferedImage normalReconstruction = reconstructNormalImage(update);
         Graphics2D g = (Graphics2D) normalImage.getGraphics();
-        g.setColor(Color.WHITE);
-        g.setComposite(AlphaComposite.Clear);
-        g.fillRect(update.x, update.y, update.width, update.height);
-        g.setComposite(AlphaComposite.SrcOver);
+        g.setComposite(AlphaComposite.Src);
         g.drawImage(normalReconstruction, update.x, update.y, null);
         g.dispose();
         reconstructZoomedImage(update);
@@ -178,7 +172,6 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable, 
     protected Layer createLayer(int layerID) {
         if (network) {
             return new Layer(layerID, width, height, new NetworkImage(new NetworkListener() {
-
                 @Override
                 public void sendUpdate(NetworkUpdate update) {
                     for (NetworkListener listener : listeners) {

@@ -59,10 +59,7 @@ public class Zoom {
         g.scale(zoom, zoom);
         int x2 = update.x + update.width;
         int y2 = update.y + update.height;
-        g.setComposite(AlphaComposite.Clear);
-        g.setColor(Color.WHITE);
-        g.fillRect(update.x, update.y, update.width, update.height);
-        g.setComposite(AlphaComposite.SrcOver);
+        g.setComposite(AlphaComposite.Src);
         g.drawImage(from, update.x, update.y, x2, y2, update.x, update.y, x2, y2, null);
         g.dispose();
     }
