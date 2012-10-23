@@ -47,7 +47,7 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author indy
+ * @author Martin Indra <aktive@seznam.cz>
  */
 public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable, Informing, Selectionable {
 
