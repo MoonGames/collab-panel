@@ -16,4 +16,4 @@ You should have received a copy of the GNU General Public License along with Col
 Build
 -----
 
-If you run [ant](http://ant.apache.org/) in repository root all sources will be compiled na JAR file will be create in /deploy directory.
+If you run [ant](http://ant.apache.org/) in repository root all sources will be compiled and JAR file will be create in /deploy directory.
