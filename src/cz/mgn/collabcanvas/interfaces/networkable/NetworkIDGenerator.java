@@ -18,14 +18,19 @@
  * You should have received a copy of the GNU General Public License
  * along with Collab canvas.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package cz.mgn.collabcanvas.interfaces.networkable;
 
 /**
+ * Generator of unique IDs.
  *
  * @author Martin Indra <aktive@seznam.cz>
  */
 public interface NetworkIDGenerator {
 
+    /**
+     * It generates new unique ID.
+     *
+     * @return new ID
+     */
     public int generateNextID();
 }

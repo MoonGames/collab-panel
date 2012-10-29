@@ -170,7 +170,7 @@ public interface Paintable {
      * empty area. Below is example.</p>
      *
      * <code><pre>
-     * RESOLUTION IS DIMINISHED (bibber -> smaller):
+     * RESOLUTION IS DIMINISHED (bigger -> smaller):
      *
      * BEFORE:
      *
