@@ -18,19 +18,21 @@
  * You should have received a copy of the GNU General Public License
  * along with Collab canvas.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package cz.mgn.collabcanvas.interfaces.paintable;
 
 import java.util.ArrayList;
 
 /**
+ * Object containing paint update.
  *
- *    @author Martin Indra <aktive@seznam.cz>
+ * @author Martin Indra <aktive@seznam.cz>
  */
 public interface PaintData {
 
     /**
-     * vrati seznam zmen
+     * Returns list of images to paint in specified order.
+     *
+     * @see cz.mgn.collabcanvas.interfaces.paintable.PaintImage
      */
     public ArrayList<PaintImage> getPaintImages();
 }

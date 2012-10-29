@@ -18,34 +18,46 @@
  * You should have received a copy of the GNU General Public License
  * along with Collab canvas.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package cz.mgn.collabcanvas.interfaces.networkable;
 
 import java.util.Set;
 
 /**
  *
- *    @author Martin Indra <aktive@seznam.cz>
+ * 
+ *
+ * <code><pre>
+ * step 1       step 2                      step 3
+ *   |           / \           removes from   | receved
+ *   | paint      | give for   temporary      | from online
+ *   | something  | online     -------------- | area
+ *  \ /           | process   |              \ /
+ *  ----------------          |      ----------------
+ * | Temporary area | <-------      | Permanent area |
+ *  ----------------                 ----------------
+ * </pre></code>
+ *
+ * @author Martin Indra <aktive@seznam.cz>
  */
 public interface Networkable {
 
     /**
-     *   vrati seznam soucasnych posluchacu udalosti
+     * vrati seznam soucasnych posluchacu udalosti
      */
     public Set<NetworkListener> getListeners();
 
     /**
-     *   prida novy posluchac udalosti
+     * prida novy posluchac udalosti
      */
     public void addListener(NetworkListener listener);
 
     /**
-     *   smaze posluchace a vrati true v pripade ze takovy neexistuje vrati false
+     * smaze posluchace a vrati true v pripade ze takovy neexistuje vrati false
      */
     public boolean removeListener(NetworkListener listener);
 
     /**
-     *  informuje o obdrzeni a zakresli novy update
+     * informuje o obdrzeni a zakresli novy update
      */
     public void updateReceived(NetworkUpdate update);
 }

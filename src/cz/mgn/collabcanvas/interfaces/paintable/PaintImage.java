@@ -18,7 +18,6 @@
  * You should have received a copy of the GNU General Public License
  * along with Collab canvas.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package cz.mgn.collabcanvas.interfaces.paintable;
 
 import java.awt.Point;
@@ -26,24 +25,35 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 /**
+ * <p>Image for paint on canvas.</p>
  *
- *   @author Martin Indra <aktive@seznam.cz>
+ * <p>This image can be painted on canvas multiple. Every apply is specified by
+ * apply point.</p>
+ *
+ * @author Martin Indra <aktive@seznam.cz>
  */
 public interface PaintImage {
 
     /**
-     * vrati seznam bodu, kde se ma zmena aplikovat
+     * Returns all apply points in specified order. Point is relative
+     * coordinates left-up corner of paint image on canvas in not scaled size.
      */
     public ArrayList<Point> getApplyPoints();
 
     /**
-     * vrati obrazek zmeny (v pripade odebirani velikost alpha kanalu urcuje
-     * mnozstvi odebrani (alphaDst * (1 - aplhaSrc)))
+     * <p>Returns paint image.</p>
+     *
+     * <p>In case of substractive image. Alpha channel of this image determines
+     * how much of color will be earsed (
+     * <code>{At} = ({Ac} * (255 - {Au}) / (255 * 255))</code>, where At is
+     * target alpha, Ac is current alpha and Au is alpha in this image)</p>
      */
     public BufferedImage getImage();
 
     /**
-     * vrati jestli se se ma zmena pridat nebo odebrat
+     * Returns if this image is additive or substractive.
+     *
+     * @see #getImage()
      */
     public boolean isAddChange();
 }

@@ -18,16 +18,32 @@
  * You should have received a copy of the GNU General Public License
  * along with Collab canvas.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package cz.mgn.collabcanvas.factory;
 
 import cz.mgn.collabcanvas.canvas.CollabCanvas;
 import cz.mgn.collabcanvas.interfaces.networkable.NetworkIDGenerator;
 
+/**
+ * Factory for canvas, this class is the best place for creating new canvas
+ * (new instance).
+ *
+ * @see cz.mgn.collabcanvas.canvas.CollabCanvas
+ *
+ * @author Martin Indra <aktive@seznam.cz>
+ */
 public class CollabCanvasFactory {
 
     /**
-     * vytvori sitovy CollabCanvas
+     * Creates new canvas in online (network) mode.
+     *
+     * @param idGenerator generator for ID's
+     * @param canvasID unique canvas ID
+     *
+     * @return new online canvas
+     *
+     * @see cz.mgn.collabcanvas.interfaces.networkable.Networkable
+     * @see cz.mgn.collabcanvas.interfaces.networkable.NetworkIDGenerator
+     * @see cz.mgn.collabcanvas.canvas.CollabCanvas
      */
     public static CollabCanvas createNetworkCollabCanvas(NetworkIDGenerator idGenerator, int canvasID) {
         if (idGenerator == null) {
@@ -36,6 +52,15 @@ public class CollabCanvasFactory {
         return new CollabCanvas(true, idGenerator, canvasID);
     }
 
+    /**
+     * Creates new canvas in offline mode.
+     *
+     * @param canvasID unique canvas ID
+     *
+     * @return new offline canvas
+     *
+     * @see cz.mgn.collabcanvas.canvas.CollabCanvas
+     */
     public static CollabCanvas createLocalCollabCanvas(int canvasID) {
         return new CollabCanvas(false, null, canvasID);
     }

@@ -18,7 +18,6 @@
  * You should have received a copy of the GNU General Public License
  * along with Collab canvas.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package cz.mgn.collabcanvas.canvas;
 
 import cz.mgn.collabcanvas.canvas.image.CanvasImage;
@@ -36,6 +35,18 @@ import java.util.Set;
 import javax.swing.JComponent;
 
 /**
+ * <p>Main and central class of canvas.</p>
+ *
+ * <p>Canvas can be started in two modes. First is offline mode, it's just
+ * simple painting canvas. Second mode is network mode, it's means that
+ * everything is painted to temporary area, then it's sent to some interface for
+ * online distribution and when data is received from online area through some
+ * interface it's painted permanently.</p>
+ *
+ * <p><strong>Important:</strong> call destroy after end of usage of canvas.</p>
+ *
+ * @see #destroy()
+ * @see cz.mgn.collabcanvas.interfaces.networkable.Networkable
  *
  * @author Martin Indra <aktive@seznam.cz>
  */
@@ -46,6 +57,17 @@ public class CollabCanvas implements Informing {
     protected CanvasImage canvasImage;
     protected CanvasPanel canvasPanel;
 
+    /**
+     * Do not create instance directly use Collab canvas factory.
+     *
+     * @param networkMode if canvas may start in network mode
+     * @param idGenerator ID generator
+     * @param canvasID this canvas ID, should be unique in application
+     *
+     * @see cz.mgn.collabcanvas.factory.CollabCanvasFactory
+     * @see cz.mgn.collabcanvas.interfaces.networkable.Networkable
+     * @see cz.mgn.collabcanvas.interfaces.networkable.NetworkIDGenerator
+     */
     public CollabCanvas(boolean networkMode, NetworkIDGenerator idGenerator, int canvasID) {
         this.network = networkMode;
         this.canvasID = canvasID;
@@ -54,56 +76,106 @@ public class CollabCanvas implements Informing {
         canvasImage.setChangeListener(canvasPanel);
     }
 
+    /**
+     * Returns SWING component of canvas.
+     *
+     * @see javax.swing.JComponent
+     */
     public JComponent getCanvasComponent() {
         return canvasPanel;
     }
 
+    /**
+     * Returns informing interface.
+     *
+     * @see cz.mgn.collabcanvas.interfaces.informing.Informing
+     */
     public Informing getInforming() {
         return this;
     }
 
+    /**
+     * Returns listenable interface.
+     *
+     * @see cz.mgn.collabcanvas.interfaces.listenable.Listenable
+     */
     public Listenable getListenable() {
         return canvasPanel;
     }
 
     /**
-     * return null if it's not int network mode
+     * If canvas is started in network mode returns network interface, otherwise
+     * returns null.
+     *
+     * @see cz.mgn.collabcanvas.interfaces.networkable.Networkable
      */
     public Networkable getNetworkable() {
         return network ? canvasImage : null;
     }
 
+    /**
+     * Returns paint interface.
+     *
+     * @see cz.mgn.collabcanvas.interfaces.paintable.Paintable
+     */
     public Paintable getPaintable() {
         return canvasImage;
     }
 
+    /**
+     * Returns selection interface.
+     *
+     * @see cz.mgn.collabcanvas.interfaces.selectionable.Selectionable
+     */
     public Selectionable getSelectionable() {
         return canvasImage;
     }
 
+    /**
+     * Returns visible things interface.
+     *
+     * @see cz.mgn.collabcanvas.interfaces.visible.Visible
+     */
     public Visible getVisible() {
         return canvasPanel.getVisible();
     }
 
+    /**
+     * Returns zoom interface.
+     *
+     * @see cz.mgn.collabcanvas.interfaces.zoomable.Zoomable
+     */
     public Zoomable getZoomable() {
         return canvasImage;
     }
 
+    /**
+     * Destroy canvas, must be called to end all canvas threads.
+     */
     public void destroy() {
         canvasImage.destroy();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Set<InfoListener> getInfoListeners() {
         return canvasImage.getInfoListeners();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void addInfoListener(InfoListener listener) {
         canvasImage.addInfoListener(listener);
         canvasPanel.getInforming().addInfoListener(listener);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean removeInfoListener(InfoListener listener) {
         canvasImage.removeInfoListener(listener);

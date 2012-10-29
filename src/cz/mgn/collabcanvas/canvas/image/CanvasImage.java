@@ -381,9 +381,9 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable, 
         synchronized (this) {
             Layer layer = getLayerByID(layerID);
             if (layer == null) {
-                return -1;
+                return Paintable.LAYER_VISIBLITY_DOESNT_EXIST;
             }
-            return layer.getOpaqueness() > 0 ? 1 : 0;
+            return layer.getOpaqueness() > 0 ? Paintable.LAYER_VISIBLITY_VISIBLE : Paintable.LAYER_VISIBLITY_INVISIBLE;
         }
     }
 

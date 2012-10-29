@@ -18,43 +18,67 @@
  * You should have received a copy of the GNU General Public License
  * along with Collab canvas.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package cz.mgn.collabcanvas.interfaces.paintable;
 
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
 /**
+ * <p>This interface is used for raster painting on canvas and manipulating with
+ * layers.</p>
  *
  * @author Martin Indra <aktive@seznam.cz>
  */
 public interface Paintable {
 
+    public static final int LAYER_VISIBLITY_DOESNT_EXIST = -1;
+    public static final int LAYER_VISIBLITY_INVISIBLE = 0;
+    public static final int LAYER_VISIBLITY_VISIBLE = 1;
+
     /**
-     * nakresli zmenu do aktualne vybrane vrstvy
+     * Paint to currently selected layer.
+     *
+     * @param paintData what will be painted
+     *
+     * @see cz.mgn.collabcanvas.interfaces.paintable.PaintData
      */
     public void paint(PaintData paintData);
 
     /**
-     * nastavi vrstvu jako oznacenou selectnutou v pripade ze vrstva se zadanym
-     * id neexistuje neprovede zadnou akci
+     * Select layer with specified ID, if layer with this id doesn't exist
+     * nothing happends.
+     *
+     * @param layerID ID of layer
      */
     public void selectLayer(int layerID);
 
-    /*
-     * nastavi poradi vrstvev, v pripade neodstranovani prebyvajichc vrstev
-     * zbyle prida nekonec v jejich soucasnem poradi a vytvori ty co zatim
-     * neexistujou priklad: existujici vrstvy {1, 2, 3, 4, 5}, parametr {2, 1,
-     * 4, 7}, vrstvy po provedeni {2, 1, 4, 7, 3, 5} (bez 3 a 5 pri odstranovani
-     * prebytecnych vrstev)
+    /**
+     * <p>Sets layers order, add not existing layers and optionally removes
+     * layers which is not contained in order array. If removing is turned off,
+     * layers which are not contained in order parameter are filed on end of
+     * order.</p>
      *
-     * @param remove jestli se maji prebytecne vrstvy co nejsou uvedene v poradi
-     * mazat
+     * <p>Example when option remove is turned off: Layers before calling this
+     * method are [1, 2, 3, 4, 5]. Order parameter of method contains this
+     * layers [2, 1, 4, 7]. And layers after calling this method are [2o, 1o,
+     * 4o, 7n, 3o, 5o], where "o" suffix means that layer is not currently
+     * created and "n" means that is new layer.</p>
+     *
+     * <p>Example when option remove is turned on: Layers before calling this
+     * method are [1, 2, 3, 4, 5]. Order parameter of method contains this
+     * layers [2, 1, 4, 7]. And layers after calling this method are [2o, 1o,
+     * 4o, 7n], where "o" suffix means that layer is not currently created and
+     * "n" means that is new layer.</p>
+     *
+     * @param remove says if removing layers is turned on
+     *
+     * @see #getLayersOrder()
      */
     public void setLayersOrder(int[] order, boolean remove);
 
     /**
-     * vrati usporadani vrstev 0 prvek = vrstva nejvice vespod
+     * Returns all layers IDs in his order. First layer (in array on index 0) is
+     * painted under all other layers (it's painted first).
      */
     public int[] getLayersOrder();
 
@@ -64,73 +88,191 @@ public interface Paintable {
     public void setLayerVisibility(int layerID, boolean visible);
 
     /**
-     * vrati jestli je vrstva zviditelnena 1 = ano, 0 = ne, -1 vrstva
-     * neexsistuje
+     * Returns if layer is visible.
+     *
+     * @see #LAYER_VISIBLITY_DOESNT_EXIST
+     * @see #LAYER_VISIBLITY_INVISIBLE
+     * @see #LAYER_VISIBLITY_VISIBLE
      */
     public int getLayerVisibility(int layerID);
 
     /**
-     * nastavi velikost aplikace vrstvy (interval <0; 1>) 1 = nakresli se 100%,
-     * 0 = je neviditelna
+     * Sets opaqueness of layer.
+     *
+     * @param layerID ID of layer
+     * @param opaqueness new opaqueness of layer
+     *
+     * @see #getLayerOpaqueness(int)
      */
     public void setLayerOpaqueness(int layerID, float opaqueness);
 
     /**
-     * vrati velikost aplikace vrstvy (interval <0; 1>) 1 = kresli se 100%, 0 =
-     * je neviditelna, -1 v pripade ze vrstva neexistuje
+     * Returns opaqueness of layer. It's float number between 0 and 1 (including
+     * both 0 and 1). This number multiplied by 100 is percentage of opaqueness
+     * of layer (if layer is totally transparent returns 0, if it's
+     * half-transparent it returns 0.5 and if it's totally opaque it's returns
+     * 1).
+     *
+     * @param layerID ID of layer
+     *
+     * @return returns -1 if layer with this ID doesn't exists otherwise layer
+     * opaqueness
+     *
+     * @see #getLayersOrder()
      */
     public float getLayerOpaqueness(int layerID);
 
     /**
-     * prida novou vrstvu a vrati jeji ID, -1 pokud ji nevytvori (network mode)
+     * <p>Create and add new layer to canvas. Layer will be add on top of all
+     * layers.</p>
+     *
+     * <p>Method is functional only if canvas is in network mode.</p>
+     *
+     * @return ID of new layer, -1 if layer wasn't created (network mode)
+     *
+     * @see cz.mgn.collabcanvas.canvas.CollabCanvas CollabCanvas - see network
+     * mode documentation
+     * @see cz.mgn.collabcanvas.interfaces.networkable.Networkable Networkable -
+     * see network mode documentation
      */
     public int addLayer();
 
     /**
-     * @return vrati jestli se vrstvu podarilo smazat (pokud vrstva s timto id
-     * neexistuje nebo je zapnut network mode vrati false)
+     * <p>Removes layer.</p>
+     *
+     * <p>Method is functional only if canvas is in network mode.</p>
+     *
+     * @param layerID ID of layer to deletion
+     *
+     * @return true if layer was correctly deleted, false if layer with this ID
+     * doesn't exist or if canvas is in network mode
+     *
+     * @see cz.mgn.collabcanvas.canvas.CollabCanvas CollabCanvas - see network
+     * mode documentation
+     * @see cz.mgn.collabcanvas.interfaces.networkable.Networkable Networkable -
+     * see network mode documentation
      */
     public boolean removeLayer(int layerID);
 
     /**
-     * vrati sirku kresleneho obrazku
+     * Returns not scaled width of canvas.
      */
     public int getWidth();
 
     /**
-     * vrati vysku kresleneho obrazku
+     * Returns not scaled height of canvas.
      */
     public int getHeight();
 
     /**
-     * zmeni rozmery obrazku (puvodni obrazek se nakresli do rohu, pripadne
-     * orizne)
+     * <p>Change canvas resolution. Old canvas is painted to left up corner in
+     * new canvas, so right and bottom margin can be cut out or there can be
+     * empty area. Below is example.</p>
+     *
+     * <code><pre>
+     * RESOLUTION IS DIMINISHED (bibber -> smaller):
+     *
+     * BEFORE:
+     *
+     *  -------------
+     * |             |
+     * | S C R E E N |
+     * |             |
+     * |  image...   |
+     *  -------------
+     *
+     * AFTER:
+     *
+     *  -------
+     * |       |
+     * | S C R |
+     * |       |
+     *  -------
+     *
+     * </pre></code>
+     *
+     * <code><pre>
+     * RESOLUTION IS AUGMENTED (smaller -> bigger):
+     *
+     * BEFORE:
+     *
+     *  -------------
+     * |             |
+     * | S C R E E N |
+     * |             |
+     * |  image...   |
+     *  -------------
+     *
+     * AFTER (* is transparency):
+     *
+     *  ------------------
+     * |             *****|
+     * | S C R E E N *****|
+     * |             *****|
+     * |  image...   *****|
+     * |******************|
+     *  ------------------
+     *
+     * </pre></code>
      */
     public void setResolution(int width, int height);
 
     /**
-     * vrati cast oznacene vrstvy, null v pripade ze obdelnik zasahuje mimo
-     * vrstvu
+     * Returns (part) of selected layer as image.
      *
-     * @param rect if null, return all layer
+     * @param rect rectangle specifying part of image, null is equal to all
+     * image
+     *
+     * @return image of (part) layer
      */
     public BufferedImage getSelectedLayerImage(Rectangle rect);
 
     /**
-     * vrati cast vsech vrstev po jejich rekombinaci, null v pripade ze obdelnik
-     * zasahuje mimo obrazek
+     * Returns (part of) canvas represented as image.
      *
-     * @param rect if null, return all image
+     * @param rect rectangle specifying part of image, null is equal to all
+     * image
+     *
+     * @return image of (part) canvas
      */
     public BufferedImage getImage(Rectangle rect);
 
     /**
-     * vrati oznacenou cast obrazku zbytek zustane alpha
+     * <p>Returns selected part of canvas, remaining (not selected) area will be
+     * transparent in image. Example is below.</p>
+     *
+     * <code><pre>
+     * CANVAS IMAGE:
+     * # - selected area:
+     *
+     *  -------------
+     * |     ##      |
+     * | ######      |
+     * | ######      |
+     * |             |
+     *  -------------
+     *
+     * RETURNED IMAGE:
+     * x - pixels copyed from canvas
+     * * - transparency
+     *
+     *  -------------
+     * |*****xx******|
+     * |*xxxxxx******|
+     * |*xxxxxx******|
+     * |*************|
+     *  -------------
+     * </pre></code>
+     *
+     * @see cz.mgn.collabcanvas.interfaces.selectionable.Selectionable
      */
     public BufferedImage getImageSelection();
 
     /**
-     * vrati oznacenou cast vrstvy zbytek pruhlednost
+     * Returns selected part of currently selected layer.
+     *
+     * @see #getImageSelection()
+     * @see cz.mgn.collabcanvas.interfaces.selectionable.Selectionable
      */
     public BufferedImage getSelectedLayerImageSelection();
 }
