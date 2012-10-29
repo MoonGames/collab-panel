@@ -18,36 +18,48 @@
  * You should have received a copy of the GNU General Public License
  * along with Collab canvas.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package cz.mgn.collabcanvas.interfaces.visible;
 
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 
 /**
+ * <p>Tool image can be used like preview of something which will be painted.
+ * It's image painted under mouse cursor and tool cursor, it's moving with mouse
+ * and it's scaling with canvas.</p>
  *
- *   @author Martin Indra <aktive@seznam.cz>
+ * @see cz.mgn.collabcanvas.interfaces.visible.Visible
+ * @see cz.mgn.collabcanvas.interfaces.zoomable.Zoomable
+ *
+ * @author Martin Indra <aktive@seznam.cz>
  */
 public interface ToolImage {
 
     /**
-     *  vrati souradnici relativniho umisteni vzhledem k nescalovanymu obrazku
-     * (levy horni roh)
+     * Returns coordinates of left up corner of image relative to mouse pointer.
+     * This coordinates is scaled with canvas.
      */
     public Point getRelativeLocatoin();
 
     /**
-     *  vrati obrazek toolu v originalni velikosti
+     * Return tool image in original size.
      */
     public BufferedImage getToolImage();
 
     /**
-     *  vrati jestli podporuje scalovani obrazku toolu
+     * Returns if this tool image can scale self (by self algorithm) if not will
+     * be scaled by canvas algorithm.
      */
     public boolean isScalingSupported();
 
     /**
-     *  vrati scalovany obrazek toolu
+     * Returns scaled image. Can be called only if scaling is supported in this
+     * tool imaga.
+     *
+     * @param scale scale size (same value as zoom)
+     *
+     * @see #isScalingSupported()
+     * @see cz.mgn.collabcanvas.interfaces.zoomable.Zoomable
      */
     public BufferedImage getScaledToolImage(float scale);
 }

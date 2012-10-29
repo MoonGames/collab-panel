@@ -18,28 +18,26 @@
  * You should have received a copy of the GNU General Public License
  * along with Collab canvas.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package cz.mgn.collabcanvas.interfaces.zoomable;
 
 import java.awt.Point;
 import java.awt.Rectangle;
 
 /**
+ * <p> This interface is used for working with canvas zoom. </p>
  *
- * This interface is used for working with canvas zoom.
- *
- * zoom - it's float number defining zoom size. By this number is multiplied
- * normal canvas size. For example, if this number is 0.75, canvas is zoomed to
- * 75% (it's size is 75% of normal size)
+ * <p> <strong>zoom</strong> - it's float number defining zoom size. By this
+ * number is multiplied normal canvas size. For example, if this number is 0.75,
+ * canvas is zoomed to 75% (it's size is 75% of normal size). </p>
  *
  * @author Martin Indra <aktive@seznam.cz>
  */
 public interface Zoomable {
 
     /**
-     * Get current canvas zoom.
+     * Returns current canvas zoom.
      *
-     * @return current zoom
+     * @see cz.mgn.collabcanvas.interfaces.zoomable.Zoomable
      */
     public float getZoom();
 
@@ -50,6 +48,8 @@ public interface Zoomable {
      * @param zoom try to zoom to this value
      *
      * @return zooming result (current zoom)
+     *
+     * @see cz.mgn.collabcanvas.interfaces.zoomable.Zoomable
      */
     public float setZoom(float zoom);
 
@@ -62,6 +62,8 @@ public interface Zoomable {
      * @param zoom value to add
      *
      * @return zooming result (current zoom)
+     *
+     * @see cz.mgn.collabcanvas.interfaces.zoomable.Zoomable
      */
     public float addToZoom(float zoom);
 

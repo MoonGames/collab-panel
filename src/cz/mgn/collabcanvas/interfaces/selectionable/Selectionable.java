@@ -18,29 +18,36 @@
  * You should have received a copy of the GNU General Public License
  * along with Collab canvas.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package cz.mgn.collabcanvas.interfaces.selectionable;
 
 import java.awt.image.BufferedImage;
 
 /**
+ * <p>This interface allows work with selection on canvas.</p>
  *
  * @author Martin Indra <aktive@seznam.cz>
  */
 public interface Selectionable {
 
     /**
-     * vrati obrazek soucasneho oznaceni (alpha udava miru aplikace vyberu)
+     * Returns image representing current selection. Alpha channel represents
+     * value of selection (pixel for pixel). Size of alpha on pixel determines
+     * value of selection (255 alpha (maximal) means 100% of selection)
+     *
+     * @see
+     * cz.mgn.collabcanvas.interfaces.selectionable.SelectionUpdate#getUpdateImage()
      */
     public BufferedImage getSelectionImage();
 
     /**
-     * vybere vse
+     * Select all.
      */
     public void selectAll();
 
     /**
-     * updatuje vyber
+     * Update current selection by selection update.
+     *
+     * @see cz.mgn.collabcanvas.interfaces.selectionable.SelectionUpdate
      */
     public void select(SelectionUpdate selectoinUpdate);
 }

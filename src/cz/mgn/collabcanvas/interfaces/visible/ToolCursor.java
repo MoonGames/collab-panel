@@ -24,9 +24,12 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 
 /**
- * Tool cursor is image like mouse cursor, but it's represent tool which with
- * will be painted (if tool is used). Tool cursor is painted under mouse cursor
- * and differently of mouse cursor is zoomed with canvas.
+ * <p>Tool cursor is image like mouse cursor, but it's represent tool which with
+ * will be painted (or something similar). Tool cursor is painted under mouse
+ * cursor and differently of mouse cursor is zoomed with canvas.</p>
+ *
+ * @see cz.mgn.collabcanvas.interfaces.visible.Visible
+ * @see cz.mgn.collabcanvas.interfaces.zoomable.Zoomable
  *
  * @author Martin Indra <aktive@seznam.cz>
  */
@@ -42,7 +45,7 @@ public interface ToolCursor {
     public static final int LOCATION_MODE_UP_LEFT_CORNER = 1;
 
     /**
-     * Returns relative shift of cursor stick point with respect to mouse point.
+     * Returns relative shift of cursor stick point relative to mouse point.
      *
      * @return cursor position shift
      */
@@ -50,8 +53,10 @@ public interface ToolCursor {
 
     /**
      * Returns mode of cursor positioning. Cursor is position is based on mouse
-     * position. There are several positioning modes. See LOCATION_MODE_CENTER
-     * or LOCATION_MODE_UP_LEFT_CORNER.
+     * position. There are several positioning modes.
+     *
+     * @see #LOCATION_MODE_CENTER
+     * @see #LOCATION_MODE_UP_LEFT_CORNER
      *
      * @return cursor positioning mod
      */
@@ -69,16 +74,20 @@ public interface ToolCursor {
      * canvas internal algorithms.
      *
      * @return true if own scaling is supported
+     *
+     * @see cz.mgn.collabcanvas.interfaces.zoomable.Zoomable
      */
     public boolean isScalingSupported();
 
     /**
-     * Returns scaled cursor image.
+     * Returns scaled cursor image. Will be called only if scaling is supported.
      *
-     * @param scale size of scale. Result size of cursor image should be as
-     * times bigger as scale value (scaledSize = normalSize * scale).
+     * @param scale size of scale. This value is same as zoom.
      *
      * @return scaled cursor image
+     *
+     * @see #isScalingSupported()
+     * @see cz.mgn.collabcanvas.interfaces.zoomable.Zoomable
      */
     public BufferedImage getScaledCursorImage(float scale);
 }

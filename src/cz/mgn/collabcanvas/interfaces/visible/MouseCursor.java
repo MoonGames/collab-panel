@@ -18,14 +18,17 @@
  * You should have received a copy of the GNU General Public License
  * along with Collab canvas.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package cz.mgn.collabcanvas.interfaces.visible;
 
 import java.awt.Image;
 
 /**
+ * This class is used for representing mouse cursor, it's just system mouse
+ * cursor (pointer).
  *
- *   @author Martin Indra <aktive@seznam.cz>
+ * @see cz.mgn.collabcanvas.interfaces.visible.Visible
+ *
+ * @author Martin Indra <aktive@seznam.cz>
  */
 public interface MouseCursor {
 

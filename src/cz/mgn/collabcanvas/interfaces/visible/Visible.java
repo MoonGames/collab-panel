@@ -21,25 +21,28 @@
 package cz.mgn.collabcanvas.interfaces.visible;
 
 /**
- * This interface is used for working with dynamic visible parts over canvas.
- * Like mouse cursor, previews etc.
+ * <p> This interface is used for working with dynamic visible parts over
+ * canvas. Like mouse cursor, previews etc. </p>
  *
- * When canvas is painted first is painted canvas image and over it it painted
- * thing which is possible work by this interface. Over canvas image is painted
- * this things (in this order): tool image, tool cursor, mouse cursor
+ * <p> When canvas is painted first is painted <strong>canvas image</strong> and
+ * over it is painted thing which is possible work by this interface. Over
+ * canvas image is painted this things (in this order): <strong>tool
+ * image</strong>, <strong>tool cursor</strong>, <strong>mouse cursor</strong>.
+ * </p>
  *
- * mouse cursor: it's painted over all and it's not painted by canvas, but by
- * system (it's uses standard system API for mouse cursors)
+ * <p> <strong>mouse cursor</strong> - it's painted over all and it's not
+ * painted by canvas, but by system (it's uses standard system API for mouse
+ * cursors) </p>
  *
- * tool cursor: under mouse cursor is painted tool cursor (example: this canvas
- * is used in graphics editor providing brush painting tool and tool cursor of
- * this tool is outline of used brush). Simply it's just image painted under
- * mouse cursor. Tool cursor is zoomed (differently of mouse cursor) same as
- * canvas.
+ * <p> <strong>tool cursor</strong> - under mouse cursor is painted tool cursor
+ * (example: this canvas is used in graphics editor providing brush painting
+ * tool and tool cursor of this tool is outline of used brush). Simply it's just
+ * image painted under mouse cursor. Tool cursor is zoomed (differently of mouse
+ * cursor) same as canvas. </p>
  *
- * tool image: image which is painted under mouse and tool cursor. This image is
- * moving with mouse and tool cursor and it's serves like preview of something.
- * Tool image is zoomed same as canvas.
+ * <p> <strong>tool image</strong> - image which is painted under mouse and tool
+ * cursor. This image is moving with mouse and tool cursor and it's serves like
+ * preview of something. Tool image is zoomed same as canvas. </p>
  *
  * @author Martin Indra <aktive@seznam.cz>
  */
@@ -49,7 +52,10 @@ public interface Visible {
      * Sets mouse cursor.
      *
      * @param mouseCursor new mouse cursor which will be used, if this value is
-     * null, default cursor will be used
+     * null, default cursor will be used.
+     *
+     * @see cz.mgn.collabcanvas.interfaces.visible.Visible
+     * @see cz.mgn.collabcanvas.interfaces.visible.MouseCursor
      */
     public void setMouseCursor(MouseCursor mouseCursor);
 
@@ -58,6 +64,9 @@ public interface Visible {
      *
      * @param toolCursor new tool cursor, if it's null no tool cursor will be
      * used
+     *
+     * @see cz.mgn.collabcanvas.interfaces.visible.Visible
+     * @see cz.mgn.collabcanvas.interfaces.visible.ToolCursor
      */
     public void setToolCursor(ToolCursor toolCursor);
 
@@ -65,6 +74,9 @@ public interface Visible {
      * Sets tool image.
      *
      * @param toolImage new tool image, if it's null no tool image will be used
+     *
+     * @see cz.mgn.collabcanvas.interfaces.visible.Visible
+     * @see cz.mgn.collabcanvas.interfaces.visible.ToolImage
      */
     public void setToolImage(ToolImage toolImage);
 }
