@@ -23,12 +23,14 @@ package cz.mgn.collabcanvas.interfaces.networkable;
 import java.util.Set;
 
 /**
- *
- * 
+ * <p>This interface is for manipulating with online (network) part of canvas.
+ * Can be used only if canvas is turned on in online mode.</p>
  *
  * <code><pre>
+ * ONLINE PAINTING DIAGRAM:
+ *
  * step 1       step 2                      step 3
- *   |           / \           removes from   | receved
+ *   |           / \           removes from   | received
  *   | paint      | give for   temporary      | from online
  *   | something  | online     -------------- | area
  *  \ /           | process   |              \ /
@@ -42,22 +44,32 @@ import java.util.Set;
 public interface Networkable {
 
     /**
-     * vrati seznam soucasnych posluchacu udalosti
+     * Returns list of network listeners.
+     *
+     * @see cz.mgn.collabcanvas.interfaces.networkable.NetworkListener
      */
     public Set<NetworkListener> getListeners();
 
     /**
-     * prida novy posluchac udalosti
+     * Add new network listener.
+     *
+     * @see cz.mgn.collabcanvas.interfaces.networkable.NetworkListener
      */
     public void addListener(NetworkListener listener);
 
     /**
-     * smaze posluchace a vrati true v pripade ze takovy neexistuje vrati false
+     * Removes network listener from network listeners list.
+     *
+     * @return true if this network listener was in network listeners list
+     *
+     * @see cz.mgn.collabcanvas.interfaces.networkable.NetworkListener
      */
     public boolean removeListener(NetworkListener listener);
 
     /**
-     * informuje o obdrzeni a zakresli novy update
+     * Inform canvas about update receive from online space.
+     *
+     * @see cz.mgn.collabcanvas.interfaces.networkable.NetworkUpdate
      */
     public void updateReceived(NetworkUpdate update);
 }

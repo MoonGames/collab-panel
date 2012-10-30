@@ -18,23 +18,33 @@
  * You should have received a copy of the GNU General Public License
  * along with Collab canvas.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package cz.mgn.collabcanvas.interfaces.networkable;
 
 /**
+ * Listener of online operations on canvas.
  *
- *    @author Martin Indra <aktive@seznam.cz>
+ * @see cz.mgn.collabcanvas.interfaces.networkable.Networkable
+ *
+ * @author Martin Indra <aktive@seznam.cz>
  */
 public interface NetworkListener {
 
     /**
-     * zadost o odeslani updatu
+     * Request for send (by network) new update.
+     *
+     * @param update update to send
+     *
+     * @see cz.mgn.collabcanvas.interfaces.networkable.NetworkUpdate
      */
     public void sendUpdate(NetworkUpdate update);
 
     /**
-     * informuje o tom ze update ktery se stale nevratil ze site byl kvuli
-     * expire time nebo mnozstvi smazan z pameti
+     * If sent update doesn't receive back in expiration time, will be removed
+     * from temporary area and this method is called.
+     *
+     * @param update expected and not received update
+     *
+     * @see cz.mgn.collabcanvas.interfaces.networkable.NetworkUpdate
      */
     public void unreachedUpdateRemoved(NetworkUpdate update);
 }

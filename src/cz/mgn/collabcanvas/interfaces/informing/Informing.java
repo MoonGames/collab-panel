@@ -23,6 +23,7 @@ package cz.mgn.collabcanvas.interfaces.informing;
 import java.util.Set;
 
 /**
+ * 
  *
  * @author Martin Indra <aktive@seznam.cz>
  */

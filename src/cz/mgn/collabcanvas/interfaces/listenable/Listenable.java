@@ -18,29 +18,38 @@
  * You should have received a copy of the GNU General Public License
  * along with Collab canvas.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package cz.mgn.collabcanvas.interfaces.listenable;
 
 import java.util.Set;
 
 /**
+ * <p>This interface is used for control user events over canvas (like mouse
+ * motion, key events...).</p>
  *
- *   @author Martin Indra <aktive@seznam.cz>
+ * @author Martin Indra <aktive@seznam.cz>
  */
 public interface Listenable {
 
     /**
-     * vrati seznam soucasnych posluchacu udalosti
+     * Returns list of event listeners.
+     *
+     * @see cz.mgn.collabcanvas.interfaces.listenable.CollabPanelListener
      */
     public Set<CollabPanelListener> getListeners();
 
     /**
-     * prida novy posluchac udalosti
+     * Add new event listener to listeners list.
+     *
+     * @see cz.mgn.collabcanvas.interfaces.listenable.CollabPanelListener
      */
     public void addListener(CollabPanelListener listener);
 
     /**
-     * smaze posluchace a vrati true v pripade ze takovy neexistuje vrati false
+     * Removes event listener from listeners list.
+     *
+     * @return returns false if this event listener wasn't in listeners list
+     *
+     * @see cz.mgn.collabcanvas.interfaces.listenable.CollabPanelListener
      */
     public boolean removeListener(CollabPanelListener listener);
 }

@@ -18,22 +18,30 @@
  * You should have received a copy of the GNU General Public License
  * along with Collab canvas.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package cz.mgn.collabcanvas.interfaces.listenable;
 
 /**
+ * Listener of user events on canvas (like key events or mouse events).
  *
- *    @author Martin Indra <aktive@seznam.cz>
+ * @author Martin Indra <aktive@seznam.cz>
  */
 public interface CollabPanelListener {
 
     /**
-     *  informace o nastale udalosti klavesnice
+     * Inform that key event occurs.
+     *
+     * @param keyEvent the key event
+     *
+     * @see cz.mgn.collabcanvas.interfaces.listenable.CollabPanelKeyEvent
      */
     public void keyEvent(CollabPanelKeyEvent keyEvent);
 
     /**
-     *  informace o nastale udalosti mysi
+     * Inform that mouse event occurs.
+     *
+     * @param mouseEvent the mouse event
+     *
+     * @see cz.mgn.collabcanvas.interfaces.listenable.CollabPanelMouseEvent
      */
     public void mouseEvent(CollabPanelMouseEvent mouseEvent);
 }

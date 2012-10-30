@@ -18,47 +18,58 @@
  * You should have received a copy of the GNU General Public License
  * along with Collab canvas.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package cz.mgn.collabcanvas.interfaces.networkable;
 
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 
 /**
+ * Update of canvas which is distributed online (by network).
  *
- *      @author Martin Indra <aktive@seznam.cz>
+ * @see cz.mgn.collabcanvas.interfaces.networkable.Networkable
+ *
+ * @author Martin Indra <aktive@seznam.cz>
  */
 public interface NetworkUpdate {
 
     /**
-     * vrati ID updatu
+     * Returns unique ID of update.
      */
     public int getUpdateID();
 
     /**
-     * vrati ID vrstvy kterou updatuje
+     * Returns ID of layer which is updated with this update.
+     *
+     * @see cz.mgn.collabcanvas.interfaces.paintable.Paintable
      */
     public int getUpdateLayerID();
 
     /**
-     * vrati ID canvasu, ktery updatuje
+     * Returns ID of canvas which contains updated layer.
      */
     public int getUpdateCanvasID();
 
     /**
-     *    jestli je update pridavaci (v opacne pripade odebiraci)
+     * Returns if update (image) is aditive or substractive.
+     *
+     * @return true if change is aditive
+     *
+     * @see cz.mgn.collabcanvas.interfaces.paintable.PaintImage#isAddChange()
      */
     public boolean isAdd();
 
     /**
-     *   vrati souradnice updatu (umisteni leveho horniho rohu)
+     * Returns this update coordinates relative to up-left corner of updated
+     * canvas in not scaled size.
      */
     public Point getUpdateCoordinates();
 
     /**
-     *    vrati obrazek updatu (v pripade ze je pridavaci se ma prikreslit, v
-     * pripade ze odebiraci se ma smazat mnostvi udavane alphou v kazdem pixelu
-     * (dstAlphaUpdated = dstAlpha * (1 - srcAlpha))
+     * Returns update image.
+     *
+     * @return update image
+     *
+     * @see cz.mgn.collabcanvas.interfaces.paintable.PaintImage#getImage()
      */
     public BufferedImage getUpdateImage();
 }
