@@ -83,7 +83,10 @@ public interface Paintable {
     public int[] getLayersOrder();
 
     /**
-     * nastavi jestli je vrstva viditelna
+     * Sets layer visible or invisible.
+     *
+     * @param layerID ID af layer which visibility will be changes
+     * @param visible true if layer may be visible
      */
     public void setLayerVisibility(int layerID, boolean visible);
 
