@@ -85,6 +85,12 @@ public class CanvasPanel extends JPanel implements Listenable, CanvasImageChange
         return this;
     }
 
+    public void destroy() {
+        synchronized(this) {
+            panelListeners.clear();
+        }
+    }
+
     @Override
     public Set<CollabPanelListener> getListeners() {
         synchronized (this) {

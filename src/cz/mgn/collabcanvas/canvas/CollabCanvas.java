@@ -154,6 +154,7 @@ public class CollabCanvas implements Informing {
      */
     public void destroy() {
         canvasImage.destroy();
+        canvasPanel.destroy();
     }
 
     /**

@@ -49,7 +49,8 @@ import java.util.logging.Logger;
  *
  * @author Martin Indra <aktive@seznam.cz>
  */
-public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable, Informing, Selectionable {
+public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable,
+        Informing, Selectionable {
 
     protected boolean network;
     protected int canvasID;
@@ -72,16 +73,17 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable, 
     protected Set<InfoListener> infoListeners = new TreeSet<InfoListener>();
     //network part
     protected volatile boolean running = false;
-    protected Set<NetworkListener> listeners;
+    protected Set<NetworkListener> networkListeners;
     protected NetworkIDGenerator idGenerator;
 
-    public CanvasImage(boolean network, NetworkIDGenerator idGenerator, int canvasID) {
+    public CanvasImage(boolean network, NetworkIDGenerator idGenerator,
+            int canvasID) {
         this.network = network;
         this.canvasID = canvasID;
         setResolution(width, height);
         if (network) {
             this.idGenerator = idGenerator;
-            listeners = new TreeSet<NetworkListener>();
+            networkListeners = new TreeSet<NetworkListener>();
             new Thread(this).start();
         }
     }
@@ -120,16 +122,19 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable, 
     }
 
     protected BufferedImage reconstructNormalImage(Rectangle update) {
-        BufferedImage reconstruction = new BufferedImage(update.width, update.height, BufferedImage.TYPE_4BYTE_ABGR);
+        BufferedImage reconstruction = new BufferedImage(update.width,
+                update.height, BufferedImage.TYPE_4BYTE_ABGR);
         Graphics2D g = (Graphics2D) reconstruction.getGraphics();
         int x2 = update.x + update.width;
         int y2 = update.y + update.height;
         for (Layer layer : layers) {
             if (layer.getOpaqueness() > 0) {
-                g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, layer.getOpaqueness()));
+                g.setComposite(AlphaComposite.getInstance(
+                        AlphaComposite.SRC_OVER, layer.getOpaqueness()));
                 BufferedImage img = layer.getImage();
                 if (network) {
-                    img = layer.getNetworkImage().addLocalChanges(img, update.x, update.y, update.width, update.height);
+                    img = layer.getNetworkImage().addLocalChanges(img, update.x,
+                            update.y, update.width, update.height);
                 }
                 g.drawImage(img, 0, 0, update.width, update.height,
                         update.x, update.y, x2, y2, null);
@@ -139,15 +144,19 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable, 
         return reconstruction;
     }
 
-    protected BufferedImage reconstructNormalImageLayer(Rectangle update, Layer layer) {
-        BufferedImage reconstruction = new BufferedImage(update.width, update.height, BufferedImage.TYPE_4BYTE_ABGR);
+    protected BufferedImage reconstructNormalImageLayer(Rectangle update,
+            Layer layer) {
+        BufferedImage reconstruction = new BufferedImage(update.width,
+                update.height, BufferedImage.TYPE_4BYTE_ABGR);
         Graphics2D g = (Graphics2D) reconstruction.getGraphics();
         int x2 = update.x + update.width;
         int y2 = update.y + update.height;
         if (layer.getOpaqueness() > 0) {
-            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, layer.getOpaqueness()));
+            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+                    layer.getOpaqueness()));
             BufferedImage img = layer.getImage();
-            img = layer.getNetworkImage().addLocalChanges(img, update.x, update.y, update.width, update.height);
+            img = layer.getNetworkImage().addLocalChanges(img, update.x,
+                    update.y, update.width, update.height);
             g.drawImage(img, 0, 0, update.width, update.height,
                     update.x, update.y, x2, y2, null);
         }
@@ -171,17 +180,18 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable, 
 
     protected Layer createLayer(int layerID) {
         if (network) {
-            return new Layer(layerID, width, height, new NetworkImage(new NetworkListener() {
+            return new Layer(layerID, width, height,
+                    new NetworkImage(new NetworkListener() {
                 @Override
                 public void sendUpdate(NetworkUpdate update) {
-                    for (NetworkListener listener : listeners) {
+                    for (NetworkListener listener : networkListeners) {
                         listener.sendUpdate(update);
                     }
                 }
 
                 @Override
                 public void unreachedUpdateRemoved(NetworkUpdate update) {
-                    for (NetworkListener listener : listeners) {
+                    for (NetworkListener listener : networkListeners) {
                         listener.unreachedUpdateRemoved(update);
                     }
                 }
@@ -223,7 +233,8 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable, 
             try {
                 Thread.sleep(300);
             } catch (InterruptedException ex) {
-                Logger.getLogger(CanvasImage.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(CanvasImage.class.getName()).log(Level.SEVERE,
+                        null, ex);
             }
         }
     }
@@ -231,27 +242,31 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable, 
     public void destroy() {
         synchronized (this) {
             running = false;
+            infoListeners.clear();
+            if (network) {
+                networkListeners.clear();
+            }
         }
     }
 
     @Override
     public Set<NetworkListener> getListeners() {
         synchronized (this) {
-            return listeners;
+            return networkListeners;
         }
     }
 
     @Override
     public void addListener(NetworkListener listener) {
         synchronized (this) {
-            listeners.add(listener);
+            networkListeners.add(listener);
         }
     }
 
     @Override
     public boolean removeListener(NetworkListener listener) {
         synchronized (this) {
-            return listeners.remove(listener);
+            return networkListeners.remove(listener);
         }
     }
 
@@ -267,12 +282,17 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable, 
                 int w = updateImage.getWidth();
                 int h = updateImage.getHeight();
                 if (update.isAdd()) {
-                    ImageProcessor.addToImage(layerImage, updateImage, x, y, x, y, w, h);
+                    ImageProcessor.addToImage(layerImage, updateImage, x, y, x,
+                            y, w, h);
                 } else {
-                    ImageProcessor.removeFromImage(layerImage, updateImage, x, y, x, y, w, h);
+                    ImageProcessor.
+                            removeFromImage(layerImage, updateImage, x, y, x, y,
+                            w, h);
                 }
                 layer.getNetworkImage().updateReceived(update.getUpdateID());
-                Rectangle dirty = new Rectangle(update.getUpdateCoordinates(), new Dimension(update.getUpdateImage().getWidth(), update.getUpdateImage().getHeight()));
+                Rectangle dirty = new Rectangle(update.getUpdateCoordinates(),
+                        new Dimension(update.getUpdateImage().getWidth(),
+                        update.getUpdateImage().getHeight()));
                 reconstructImage(dirty);
                 informAboutUpdate(dirty);
             }
@@ -290,19 +310,27 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable, 
                     ArrayList<Point> applyPoints = paintImage.getApplyPoints();
                     boolean add = paintImage.isAddChange();
                     for (Point applyPoint : applyPoints) {
-                        BufferedImage pImage = selection.filterPaint(applyPoint.x, applyPoint.y, image);
-                        dirty.addDirty(new Rectangle(applyPoint.x, applyPoint.y, image.getWidth(), image.getHeight()));
+                        BufferedImage pImage = selection.filterPaint(
+                                applyPoint.x, applyPoint.y, image);
+                        dirty.addDirty(new Rectangle(applyPoint.x, applyPoint.y,
+                                image.getWidth(), image.getHeight()));
                         if (network) {
                             if (add) {
-                                selectedLayer.getNetworkImage().paintAdd(pImage, applyPoint.x, applyPoint.y);
+                                selectedLayer.getNetworkImage().paintAdd(pImage,
+                                        applyPoint.x, applyPoint.y);
                             } else {
-                                selectedLayer.getNetworkImage().paintRemove(pImage, applyPoint.x, applyPoint.y);
+                                selectedLayer.getNetworkImage().paintRemove(
+                                        pImage, applyPoint.x, applyPoint.y);
                             }
                         } else {
                             if (add) {
-                                ImageProcessor.paintAdd(selectedLayer.getImage(), pImage, applyPoint.x, applyPoint.y);
+                                ImageProcessor.
+                                        paintAdd(selectedLayer.getImage(),
+                                        pImage, applyPoint.x, applyPoint.y);
                             } else {
-                                ImageProcessor.paintRemove(selectedLayer.getImage(), pImage, applyPoint.x, applyPoint.y);
+                                ImageProcessor.paintRemove(selectedLayer.
+                                        getImage(), pImage, applyPoint.x,
+                                        applyPoint.y);
                             }
                         }
                     }
@@ -383,7 +411,8 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable, 
             if (layer == null) {
                 return Paintable.LAYER_VISIBLITY_DOESNT_EXIST;
             }
-            return layer.getOpaqueness() > 0 ? Paintable.LAYER_VISIBLITY_VISIBLE : Paintable.LAYER_VISIBLITY_INVISIBLE;
+            return layer.getOpaqueness() > 0 ? Paintable.LAYER_VISIBLITY_VISIBLE
+                    : Paintable.LAYER_VISIBLITY_INVISIBLE;
         }
     }
 
@@ -459,9 +488,11 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable, 
             this.width = width;
             this.height = height;
             selection.setResolution(width, height);
-            normalImage = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
+            normalImage = new BufferedImage(width, height,
+                    BufferedImage.TYPE_4BYTE_ABGR);
             Point size = transformPoint(new Point(width, height));
-            zoomedImage = new BufferedImage(size.x, size.y, BufferedImage.TYPE_4BYTE_ABGR);
+            zoomedImage = new BufferedImage(size.x, size.y,
+                    BufferedImage.TYPE_4BYTE_ABGR);
             for (Layer layer : layers) {
                 layer.setResolution(width, height);
             }
@@ -491,10 +522,12 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable, 
             if (rect == null) {
                 rect = new Rectangle(0, 0, getWidth(), getHeight());
             }
-            BufferedImage image = new BufferedImage(rect.width, rect.height, BufferedImage.TYPE_4BYTE_ABGR);
+            BufferedImage image = new BufferedImage(rect.width, rect.height,
+                    BufferedImage.TYPE_4BYTE_ABGR);
             Graphics2D g = (Graphics2D) image.getGraphics();
             g.drawImage(normalImage, 0, 0, rect.width, rect.height,
-                    rect.x, rect.y, rect.x + rect.width, rect.y + rect.height, null);
+                    rect.x, rect.y, rect.x + rect.width, rect.y + rect.height,
+                    null);
             g.dispose();
             return image;
         }
@@ -514,7 +547,8 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable, 
             this.zoom.trySetZoom(zoom);
             if (z != this.zoom.getZoom()) {
                 Point size = transformPoint(new Point(width, height));
-                zoomedImage = new BufferedImage(size.x, size.y, BufferedImage.TYPE_4BYTE_ABGR);
+                zoomedImage = new BufferedImage(size.x, size.y,
+                        BufferedImage.TYPE_4BYTE_ABGR);
                 selection.setOutlineZoom(zoom);
                 Rectangle rect = new Rectangle(0, 0, width, height);
                 reconstructZoomedImage(rect);
@@ -544,7 +578,8 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable, 
     @Override
     public Point transformPoint(Point point) {
         synchronized (this) {
-            return new Point(transformCoordinate(point.x), transformCoordinate(point.y));
+            return new Point(transformCoordinate(point.x),
+                    transformCoordinate(point.y));
         }
     }
 
@@ -580,7 +615,8 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable, 
     @Override
     public BufferedImage getImageSelection() {
         synchronized (this) {
-            BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
+            BufferedImage image = new BufferedImage(width, height,
+                    BufferedImage.TYPE_4BYTE_ABGR);
             normalImage.copyData(image.getRaster());
             return selection.filterPaint(0, 0, image);
         }
@@ -592,7 +628,8 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable, 
             if (selectedLayer == null) {
                 return null;
             }
-            BufferedImage img = reconstructNormalImageLayer(new Rectangle(0, 0, width, height), selectedLayer);
+            BufferedImage img = reconstructNormalImageLayer(new Rectangle(0, 0,
+                    width, height), selectedLayer);
             return selection.filterPaint(0, 0, img);
         }
     }
@@ -601,7 +638,8 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable, 
     public BufferedImage getSelectionImage() {
         synchronized (this) {
             BufferedImage src = selection.getSelectionFilterImage();
-            BufferedImage dst = new BufferedImage(src.getWidth(), src.getHeight(), src.getType());
+            BufferedImage dst = new BufferedImage(src.getWidth(), src.
+                    getHeight(), src.getType());
             src.copyData(dst.getRaster());
             return dst;
         }
