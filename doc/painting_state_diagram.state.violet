@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<java version="1.6.0_24" class="java.beans.XMLDecoder">
+ <object class="com.horstmann.violet.StateDiagramGraph">
+  <void method="addNode">
+   <object id="CircularInitialStateNode0" class="com.horstmann.violet.CircularStateNode"/>
+   <object class="java.awt.geom.Point2D$Double">
+    <void method="setLocation">
+     <double>99.0</double>
+     <double>125.0</double>
+    </void>
+   </object>
+  </void>
+  <void method="addNode">
+   <object id="StateNode0" class="com.horstmann.violet.StateNode">
+    <void property="name">
+     <void property="text">
+      <string>Painted in temporary area one</string>
+     </void>
+    </void>
+   </object>
+   <object class="java.awt.geom.Point2D$Double">
+    <void method="setLocation">
+     <double>290.0</double>
+     <double>124.0</double>
+    </void>
+   </object>
+  </void>
+  <void method="addNode">
+   <object id="NoteNode0" class="com.horstmann.violet.NoteNode">
+    <void property="text">
+     <void property="text">
+      <string>Paint something on canvas</string>
+     </void>
+    </void>
+   </object>
+   <object class="java.awt.geom.Point2D$Double">
+    <void method="setLocation">
+     <double>114.0</double>
+     <double>23.0</double>
+    </void>
+   </object>
+  </void>
+  <void method="addNode">
+   <object id="StateNode1" class="com.horstmann.violet.StateNode">
+    <void property="name">
+     <void property="text">
+      <string>Paint update was painted
+persistently to canvas</string>
+     </void>
+    </void>
+   </object>
+   <object class="java.awt.geom.Point2D$Double">
+    <void method="setLocation">
+     <double>1107.0</double>
+     <double>37.0</double>
+    </void>
+   </object>
+  </void>
+  <void method="addNode">
+   <object id="StateNode2" class="com.horstmann.violet.StateNode">
+    <void property="name">
+     <void property="text">
+      <string>Paint update was dropped</string>
+     </void>
+    </void>
+   </object>
+   <object class="java.awt.geom.Point2D$Double">
+    <void method="setLocation">
+     <double>1109.0</double>
+     <double>190.0</double>
+    </void>
+   </object>
+  </void>
+  <void method="addNode">
+   <object id="NoteNode1" class="com.horstmann.violet.NoteNode">
+    <void property="text">
+     <void property="text">
+      <string>Time expired</string>
+     </void>
+    </void>
+   </object>
+   <object class="java.awt.geom.Point2D$Double">
+    <void method="setLocation">
+     <double>940.0</double>
+     <double>215.0</double>
+    </void>
+   </object>
+  </void>
+  <void method="addNode">
+   <object id="StateNode3" class="com.horstmann.violet.StateNode">
+    <void property="name">
+     <void property="text">
+      <string>Temporary area one is composited to square sectors
+saved in temporary area two. Network listeners was
+asked to process paint updates (squares) online.</string>
+     </void>
+    </void>
+   </object>
+   <object class="java.awt.geom.Point2D$Double">
+    <void method="setLocation">
+     <double>609.0</double>
+     <double>121.0</double>
+    </void>
+   </object>
+  </void>
+  <void method="addNode">
+   <object id="NoteNode2" class="com.horstmann.violet.NoteNode">
+    <void property="text">
+     <void property="text">
+      <string>Refresh temporary area</string>
+     </void>
+    </void>
+   </object>
+   <object class="java.awt.geom.Point2D$Double">
+    <void method="setLocation">
+     <double>491.0</double>
+     <double>31.0</double>
+    </void>
+   </object>
+  </void>
+  <void method="addNode">
+   <object id="PointNode0" class="com.horstmann.violet.PointNode">
+    <void id="Rectangle2D$Double0" property="bounds">
+     <void method="setRect">
+      <double>555.0</double>
+      <double>130.0</double>
+      <double>0.0</double>
+      <double>0.0</double>
+     </void>
+    </void>
+    <void property="bounds">
+     <object idref="Rectangle2D$Double0"/>
+    </void>
+   </object>
+   <object class="java.awt.geom.Point2D$Double">
+    <void method="setLocation">
+     <double>555.0</double>
+     <double>130.0</double>
+    </void>
+   </object>
+  </void>
+  <void method="addNode">
+   <object id="PointNode1" class="com.horstmann.violet.PointNode">
+    <void id="Rectangle2D$Double1" property="bounds">
+     <void method="setRect">
+      <double>1029.0</double>
+      <double>174.0</double>
+      <double>0.0</double>
+      <double>0.0</double>
+     </void>
+    </void>
+    <void property="bounds">
+     <object idref="Rectangle2D$Double1"/>
+    </void>
+   </object>
+   <object class="java.awt.geom.Point2D$Double">
+    <void method="setLocation">
+     <double>1029.0</double>
+     <double>174.0</double>
+    </void>
+   </object>
+  </void>
+  <void method="addNode">
+   <object id="NoteNode3" class="com.horstmann.violet.NoteNode">
+    <void property="text">
+     <void property="text">
+      <string>Paint update comes to
+networkable after online process</string>
+     </void>
+    </void>
+   </object>
+   <object class="java.awt.geom.Point2D$Double">
+    <void method="setLocation">
+     <double>736.0</double>
+     <double>31.0</double>
+    </void>
+   </object>
+  </void>
+  <void method="addNode">
+   <object id="PointNode2" class="com.horstmann.violet.PointNode">
+    <void id="Rectangle2D$Double2" property="bounds">
+     <void method="setRect">
+      <double>1026.0</double>
+      <double>86.0</double>
+      <double>0.0</double>
+      <double>0.0</double>
+     </void>
+    </void>
+    <void property="bounds">
+     <object idref="Rectangle2D$Double2"/>
+    </void>
+   </object>
+   <object class="java.awt.geom.Point2D$Double">
+    <void method="setLocation">
+     <double>1026.0</double>
+     <double>86.0</double>
+    </void>
+   </object>
+  </void>
+  <void method="addNode">
+   <object id="PointNode3" class="com.horstmann.violet.PointNode">
+    <void id="Rectangle2D$Double3" property="bounds">
+     <void method="setRect">
+      <double>202.0</double>
+      <double>128.0</double>
+      <double>0.0</double>
+      <double>0.0</double>
+     </void>
+    </void>
+    <void property="bounds">
+     <object idref="Rectangle2D$Double3"/>
+    </void>
+   </object>
+   <object class="java.awt.geom.Point2D$Double">
+    <void method="setLocation">
+     <double>202.0</double>
+     <double>128.0</double>
+    </void>
+   </object>
+  </void>
+  <void method="connect">
+   <object class="com.horstmann.violet.StateTransitionEdge"/>
+   <object idref="CircularInitialStateNode0"/>
+   <object idref="StateNode0"/>
+  </void>
+  <void method="connect">
+   <object class="com.horstmann.violet.StateTransitionEdge"/>
+   <object idref="StateNode0"/>
+   <object idref="StateNode3"/>
+  </void>
+  <void method="connect">
+   <object class="com.horstmann.violet.StateTransitionEdge"/>
+   <object idref="StateNode3"/>
+   <object idref="StateNode2"/>
+  </void>
+  <void method="connect">
+   <object class="com.horstmann.violet.StateTransitionEdge"/>
+   <object idref="StateNode3"/>
+   <object idref="StateNode1"/>
+  </void>
+  <void method="connect">
+   <object class="com.horstmann.violet.NoteEdge"/>
+   <object idref="NoteNode2"/>
+   <object idref="PointNode0"/>
+  </void>
+  <void method="connect">
+   <object class="com.horstmann.violet.NoteEdge"/>
+   <object idref="NoteNode1"/>
+   <object idref="PointNode1"/>
+  </void>
+  <void method="connect">
+   <object class="com.horstmann.violet.NoteEdge"/>
+   <object idref="NoteNode3"/>
+   <object idref="PointNode2"/>
+  </void>
+  <void method="connect">
+   <object class="com.horstmann.violet.NoteEdge"/>
+   <object idref="NoteNode0"/>
+   <object idref="PointNode3"/>
+  </void>
+ </object>
+</java>
