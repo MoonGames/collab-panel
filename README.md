@@ -17,3 +17,8 @@ Build
 -----
 
 If you run [ant](http://ant.apache.org/) in repository root all sources will be compiled and JAR file will be create in /deploy directory.
+
+Documentation
+-------------
+
+In ./doc directory is project documentation. Also JavaDoc comments are in source files. Or see ./src/cz/mgn/collabcanvas/examples directory, there are examples of simple usage of canvas.
