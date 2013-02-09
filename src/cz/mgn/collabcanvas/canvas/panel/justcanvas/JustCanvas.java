@@ -35,8 +35,8 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -49,7 +49,7 @@ import javax.swing.JPanel;
 public class JustCanvas extends JPanel implements Informing, Visible, CanvasImageChangeListener, MouseListener, MouseMotionListener {
 
     //info
-    protected Set<InfoListener> infoListeners = new TreeSet<InfoListener>();
+    protected Set<InfoListener> infoListeners = new HashSet<InfoListener>();
     protected static final Color background = new Color(0xfff6f6f6);
     protected CanvasImage canvasImage;
     //

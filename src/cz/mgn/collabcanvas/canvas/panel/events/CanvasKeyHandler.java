@@ -27,8 +27,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 import javax.swing.JComponent;
 
 /**
@@ -38,18 +38,19 @@ import javax.swing.JComponent;
 public class CanvasKeyHandler implements KeyListener, MouseListener {
 
     //listeners
-    protected Set<CollabPanelListener> panelListeners = new TreeSet<CollabPanelListener>();
+    protected Set<CollabPanelListener> panelListeners =
+            new HashSet<CollabPanelListener>();
     /**
      * currently pressed keys
      */
-    protected Set<Integer> pressedKeys = new TreeSet<Integer>();
+    protected Set<Integer> pressedKeys = new HashSet<Integer>();
 
     public CanvasKeyHandler(Set<CollabPanelListener> panelListeners) {
         this.panelListeners = panelListeners;
     }
 
     protected Set<Integer> getPressedKeysCopy() {
-        Set<Integer> pressedKeys = new TreeSet<Integer>();
+        Set<Integer> pressedKeys = new HashSet<Integer>();
         pressedKeys.addAll(this.pressedKeys);
         return pressedKeys;
     }

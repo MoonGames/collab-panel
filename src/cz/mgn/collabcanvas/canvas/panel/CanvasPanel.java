@@ -34,8 +34,8 @@ import cz.mgn.collabcanvas.interfaces.visible.Visible;
 import java.awt.BorderLayout;
 import java.awt.Rectangle;
 import java.awt.event.*;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
@@ -49,7 +49,8 @@ public class CanvasPanel extends JPanel implements Listenable, CanvasImageChange
     protected JScrollPane scrollPane;
     protected JustCanvas canvas;
     //listeners
-    protected Set<CollabPanelListener> panelListeners = new TreeSet<CollabPanelListener>();
+    protected Set<CollabPanelListener> panelListeners =
+            new HashSet<CollabPanelListener>();
     protected CanvasKeyHandler keyHandler;
 
     public CanvasPanel(CanvasImage canvasImage) {

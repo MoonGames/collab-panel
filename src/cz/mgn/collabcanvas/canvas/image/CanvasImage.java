@@ -40,8 +40,8 @@ import cz.mgn.collabcanvas.interfaces.zoomable.Zoomable;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -70,7 +70,7 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable,
     // selection
     protected Selection selection = new Selection();
     //info
-    protected Set<InfoListener> infoListeners = new TreeSet<InfoListener>();
+    protected Set<InfoListener> infoListeners = new HashSet<InfoListener>();
     //network part
     protected volatile boolean running = false;
     protected Set<NetworkListener> networkListeners;
@@ -83,7 +83,7 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable,
         setResolution(width, height);
         if (network) {
             this.idGenerator = idGenerator;
-            networkListeners = new TreeSet<NetworkListener>();
+            networkListeners = new HashSet<NetworkListener>();
             new Thread(this).start();
         }
     }
