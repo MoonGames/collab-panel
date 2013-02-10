@@ -20,7 +20,7 @@
  */
 package cz.mgn.collabcanvas.interfaces.listenable;
 
-import java.util.Set;
+import java.util.ArrayList;
 
 /**
  *
@@ -92,7 +92,7 @@ public interface CollabPanelKeyEvent {
     /**
      * Returns pressed keys codes (which keys was pressed when event occurs).
      */
-    public Set<Integer> getPressedKeyCodes();
+    public ArrayList<CollabPanelKeyEvent.KeyCode> getPressedKeyCodes();
 
     /**
      * Returns character representing event source key.

@@ -22,7 +22,7 @@ package cz.mgn.collabcanvas.canvas.panel.events;
 
 import cz.mgn.collabcanvas.interfaces.listenable.CollabPanelKeyEvent;
 import java.awt.event.KeyEvent;
-import java.util.Set;
+import java.util.ArrayList;
 
 /**
  *
@@ -33,9 +33,10 @@ public class CanvasKeyEvent implements CollabPanelKeyEvent {
     protected int eventType;
     protected KeyCode keyCode;
     protected char keyChar;
-    protected Set<Integer> pressedKeys;
+    protected ArrayList<CollabPanelKeyEvent.KeyCode> pressedKeys;
 
-    public CanvasKeyEvent(int eventType, int awtKeyCode, char keyChar, Set<Integer> pressedKeys) {
+    public CanvasKeyEvent(int eventType, int awtKeyCode, char keyChar,
+            ArrayList<CollabPanelKeyEvent.KeyCode> pressedKeys) {
         this.eventType = eventType;
         this.keyCode = awtKeyCodeToCollabKeyCode(awtKeyCode);
         this.keyChar = keyChar;
@@ -614,7 +615,7 @@ public class CanvasKeyEvent implements CollabPanelKeyEvent {
     }
 
     @Override
-    public Set<Integer> getPressedKeyCodes() {
+    public ArrayList<CollabPanelKeyEvent.KeyCode> getPressedKeyCodes() {
         return pressedKeys;
     }
 

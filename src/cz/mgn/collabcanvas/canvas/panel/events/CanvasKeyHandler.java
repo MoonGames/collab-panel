@@ -27,6 +27,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import javax.swing.JComponent;
@@ -43,14 +44,16 @@ public class CanvasKeyHandler implements KeyListener, MouseListener {
     /**
      * currently pressed keys
      */
-    protected Set<Integer> pressedKeys = new HashSet<Integer>();
+    protected ArrayList<CollabPanelKeyEvent.KeyCode> pressedKeys =
+            new ArrayList<CollabPanelKeyEvent.KeyCode>();
 
     public CanvasKeyHandler(Set<CollabPanelListener> panelListeners) {
         this.panelListeners = panelListeners;
     }
 
-    protected Set<Integer> getPressedKeysCopy() {
-        Set<Integer> pressedKeys = new HashSet<Integer>();
+    protected ArrayList<CollabPanelKeyEvent.KeyCode> getPressedKeysCopy() {
+        ArrayList<CollabPanelKeyEvent.KeyCode> pressedKeys =
+                new ArrayList<CollabPanelKeyEvent.KeyCode>();
         pressedKeys.addAll(this.pressedKeys);
         return pressedKeys;
     }
@@ -70,13 +73,18 @@ public class CanvasKeyHandler implements KeyListener, MouseListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        pressedKeys.add(e.getKeyCode());
+        CollabPanelKeyEvent.KeyCode keyCode = CanvasKeyEvent.
+                awtKeyCodeToCollabKeyCode(e.getKeyCode());
+        if (!pressedKeys.contains(keyCode)) {
+            pressedKeys.add(keyCode);
+        }
         informaAll(new CanvasKeyEvent(CollabPanelKeyEvent.EVENT_TYPE_PRESSED, e.getKeyCode(), e.getKeyChar(), getPressedKeysCopy()));
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-        pressedKeys.remove(e.getKeyCode());
+        pressedKeys.remove(CanvasKeyEvent.awtKeyCodeToCollabKeyCode(e.
+                getKeyCode()));
         informaAll(new CanvasKeyEvent(CollabPanelKeyEvent.EVENT_TYPE_RELEASED, e.getKeyCode(), e.getKeyChar(), getPressedKeysCopy()));
     }
 
