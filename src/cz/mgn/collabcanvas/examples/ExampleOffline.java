@@ -28,10 +28,13 @@ import cz.mgn.collabcanvas.interfaces.listenable.CollabPanelListener;
 import cz.mgn.collabcanvas.interfaces.listenable.CollabPanelMouseEvent;
 import cz.mgn.collabcanvas.interfaces.paintable.PaintData;
 import cz.mgn.collabcanvas.interfaces.paintable.PaintImage;
+import cz.mgn.collabcanvas.interfaces.visible.ToolCursor;
+import cz.mgn.collabcanvas.interfaces.visible.ToolImage;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -66,6 +69,10 @@ public class ExampleOffline implements ActionListener, CollabPanelListener {
         recreateCanvas();
     }
 
+    /**
+     * Destroy and remove current canvas than create, initializes and add new
+     * canvas.
+     */
     private void recreateCanvas() {
         if (canvas != null) {
             // removes old canvas from frame
@@ -83,11 +90,105 @@ public class ExampleOffline implements ActionListener, CollabPanelListener {
         int layerID = canvas.getPaintable().addLayer();
         // select created layer
         canvas.getPaintable().selectLayer(layerID);
+        // set cursor of current "tool"
+        canvas.getVisible().setToolCursor(generateToolCursor());
+        // set image of current "tool"
+        canvas.getVisible().setToolImage(generateToolImage());
         // add canvas to frame
         frame.getContentPane().add(canvas.getCanvasComponent(),
                 BorderLayout.CENTER);
 
         frame.validate();
+    }
+
+    /**
+     * Generate new tool image.
+     */
+    private ToolImage generateToolImage() {
+        final BufferedImage toolImage = new BufferedImage(50, 50,
+                BufferedImage.TYPE_4BYTE_ABGR);
+        Graphics2D g = (Graphics2D) toolImage.getGraphics();
+        Random r = new Random();
+        // random color
+        g.setColor(new Color(r.nextInt(256), r.nextInt(256), r.nextInt(256)));
+        // 50x50 rectangle
+        g.drawRect(0, 0, 49, 49);
+        // 2px width
+        g.drawRect(1, 1, 47, 47);
+        g.dispose();
+
+        // crate tool image object
+        return new ToolImage() {
+            @Override
+            public Point getRelativeLocatoin() {
+                // mouse is in middle of tool image (-25 is -(50/2))
+                return new Point(-25, -25);
+            }
+
+            @Override
+            public BufferedImage getToolImage() {
+                // not scalet version of tool image (our rectangle)
+                return toolImage;
+            }
+
+            @Override
+            public boolean isScalingSupported() {
+                // scaling is not supportet, means that scaling will be provided by framework not by us
+                return false;
+            }
+
+            @Override
+            public BufferedImage getScaledToolImage(float scale) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+        };
+    }
+
+    /**
+     * Generates tool cursor.
+     */
+    private ToolCursor generateToolCursor() {
+        final BufferedImage cursorImage = new BufferedImage(10, 10,
+                BufferedImage.TYPE_4BYTE_ABGR);
+        Graphics g = cursorImage.getGraphics();
+        Random r = new Random();
+        // random color
+        g.setColor(new Color(r.nextInt(256), r.nextInt(256), r.nextInt(256)));
+        // paint 10x10 circle
+        g.fillOval(0, 0, 10, 10);
+        g.dispose();
+
+        // Tool cursor object
+        return new ToolCursor() {
+            @Override
+            public Point getRelativeLocatoin() {
+                // relative location (shift from counted position) is zero
+                return new Point();
+            }
+
+            @Override
+            public int getLocationMode() {
+                // zero coordinate of tool image is in center of image
+                return ToolCursor.LOCATION_MODE_CENTER;
+            }
+
+            @Override
+            public BufferedImage getCursorImage() {
+                // cursor image (circle)
+                return cursorImage;
+            }
+
+            @Override
+            public boolean isScalingSupported() {
+                // scaling is not supportet, means that scaling will be provided by framework not by us
+                return false;
+            }
+
+            @Override
+            public BufferedImage getScaledCursorImage(float scale) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+        };
     }
 
     private void initGUI() {
@@ -124,6 +225,7 @@ public class ExampleOffline implements ActionListener, CollabPanelListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == recreate) {
+            // remove and create new canvas
             recreateCanvas();
         }
     }

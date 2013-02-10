@@ -30,7 +30,7 @@ import java.awt.Rectangle;
 public interface CanvasImageChangeListener {
 
     /**
-     * zmena v uz zoomovanych souradnicich
+     * change in zoomed coordinates
      */
     public void change(Rectangle rect);
 

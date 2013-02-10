@@ -18,7 +18,6 @@
  * You should have received a copy of the GNU General Public License
  * along with Collab canvas.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package cz.mgn.collabcanvas.canvas.panel.justcanvas;
 
 import cz.mgn.collabcanvas.canvas.image.CanvasImage;
@@ -30,6 +29,10 @@ import cz.mgn.collabcanvas.interfaces.visible.ToolCursor;
 import cz.mgn.collabcanvas.interfaces.visible.ToolImage;
 import cz.mgn.collabcanvas.interfaces.visible.Visible;
 import java.awt.*;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.ContainerEvent;
+import java.awt.event.ContainerListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -46,7 +49,9 @@ import javax.swing.JPanel;
  *
  * @author Martin Indra <aktive@seznam.cz>
  */
-public class JustCanvas extends JPanel implements Informing, Visible, CanvasImageChangeListener, MouseListener, MouseMotionListener {
+public class JustCanvas extends JPanel implements Informing, Visible,
+        CanvasImageChangeListener, MouseListener, MouseMotionListener,
+        ComponentListener, ContainerListener {
 
     //info
     protected Set<InfoListener> infoListeners = new HashSet<InfoListener>();
@@ -59,12 +64,18 @@ public class JustCanvas extends JPanel implements Informing, Visible, CanvasImag
     protected ToolImage toolImage;
     protected int mouseX = -1;
     protected int mouseY = -1;
+    /**
+     * area need be repainted
+     */
+    protected Rectangle dirty = null;
 
     static {
         try {
-            logo = ImageIO.read(JustCanvas.class.getResourceAsStream("/resources/logo_gray.png"));
+            logo = ImageIO.read(JustCanvas.class.getResourceAsStream(
+                    "/resources/logo_gray.png"));
         } catch (IOException ex) {
-            Logger.getLogger(JustCanvas.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(JustCanvas.class.getName()).log(Level.SEVERE, null,
+                    ex);
         }
     }
 
@@ -72,6 +83,8 @@ public class JustCanvas extends JPanel implements Informing, Visible, CanvasImag
         this.canvasImage = canvasImage;
         addMouseListener(this);
         addMouseMotionListener(this);
+        addComponentListener(this);
+        addContainerListener(this);
     }
 
     public Point translateMousePoint(Point point) {
@@ -83,14 +96,23 @@ public class JustCanvas extends JPanel implements Informing, Visible, CanvasImag
 
     public Point translateMousePointNoZoom(Point point) {
         Point result = new Point(
-                point.x - Math.max(getWidth() - mainImage.getImage().getWidth(), 0) / 2,
-                point.y - Math.max(getHeight() - mainImage.getImage().getHeight(), 0) / 2);
+                point.x - Math.max(getWidth() - mainImage.getImage().getWidth(),
+                0) / 2,
+                point.y - Math.max(getHeight() - mainImage.getImage().
+                getHeight(), 0) / 2);
         return result;
     }
 
     @Override
     public void paintComponent(Graphics g2) {
         Rectangle rect = getVisibleRect();
+        if (dirty != null) {
+            if (!rect.intersects(dirty)) {
+                return;
+            }
+            rect = rect.intersection(dirty);
+            dirty = null;
+        }
         Graphics2D g = (Graphics2D) g2;
         g.clipRect(rect.x, rect.y, rect.width, rect.height);
         paintBackground(g);
@@ -106,14 +128,18 @@ public class JustCanvas extends JPanel implements Informing, Visible, CanvasImag
                 img = toolCursor.getScaledCursorImage(canvasImage.getZoom());
             } else {
                 img = toolCursor.getCursorImage();
-                img = new BufferedImage((int) (img.getWidth() * canvasImage.getZoom()), (int) (img.getHeight() * canvasImage.getZoom()), img.getType());
+                img = new BufferedImage((int) (img.getWidth() * canvasImage.
+                        getZoom()), (int) (img.getHeight() * canvasImage.
+                        getZoom()), img.getType());
                 Graphics2D ig = (Graphics2D) img.getGraphics();
                 ig.scale(canvasImage.getZoom(), canvasImage.getZoom());
                 ig.drawImage(toolCursor.getCursorImage(), 0, 0, null);
                 ig.dispose();
             }
-            int xx = (int) (mouseX + toolCursor.getRelativeLocatoin().x * canvasImage.getZoom());
-            int yy = (int) (mouseY + toolCursor.getRelativeLocatoin().y * canvasImage.getZoom());
+            int xx = (int) (mouseX + toolCursor.getRelativeLocatoin().x
+                    * canvasImage.getZoom());
+            int yy = (int) (mouseY + toolCursor.getRelativeLocatoin().y
+                    * canvasImage.getZoom());
             if (toolCursor.getLocationMode() == ToolCursor.LOCATION_MODE_CENTER) {
                 xx -= img.getWidth() / 2;
                 yy -= img.getHeight() / 2;
@@ -171,7 +197,8 @@ public class JustCanvas extends JPanel implements Informing, Visible, CanvasImag
             scale = Math.max(0.1f, (size / 2f) / logo.getWidth());
             g.scale(scale, scale);
         }
-        g.drawImage(logo, 0, (int) (getHeight() / scale) - logo.getHeight(), null);
+        g.drawImage(logo, 0, (int) (getHeight() / scale) - logo.getHeight(),
+                null);
         g.scale(1 / scale, 1 / scale);
     }
 
@@ -179,7 +206,8 @@ public class JustCanvas extends JPanel implements Informing, Visible, CanvasImag
         int x = mouseX, y = mouseY;
         if (x >= 0 && y >= 0) {
             Point translatedMousePoint = translateMousePoint(new Point(x, y));
-            if (translatedMousePoint.x > canvasImage.getWidth() || translatedMousePoint.y > canvasImage.getHeight()) {
+            if (translatedMousePoint.x > canvasImage.getWidth()
+                    || translatedMousePoint.y > canvasImage.getHeight()) {
                 x = -1;
                 y = -1;
             }
@@ -193,6 +221,97 @@ public class JustCanvas extends JPanel implements Informing, Visible, CanvasImag
         }
     }
 
+    /**
+     * Add to current dirty area new.
+     */
+    protected void dirtyArea(Rectangle dirty) {
+        synchronized (this) {
+            if (dirty != null) {
+                if (this.dirty == null) {
+                    this.dirty = dirty;
+                } else {
+                    this.dirty.add(dirty);
+                }
+            }
+        }
+    }
+
+    protected void dirtyAll() {
+        synchronized (this) {
+            dirty = new Rectangle(0, 0, getWidth(), getHeight());
+        }
+    }
+
+    /**
+     * Count area on panel where cursor will be painted (including zoom).
+     *
+     * @param toolImage Tool image used for counting
+     * @param mouseX X position of mouse
+     * @param mouseY Y position of mouse
+     */
+    protected Rectangle countToolImageDirtyArea(ToolImage toolImage, int mouseX,
+            int mouseY) {
+        synchronized (this) {
+            if (toolImage == null || mouseX == -1 || mouseY == -1) {
+                return null;
+            }
+        }
+        float zoom = canvasImage.getZoom();
+        synchronized (this) {
+            int x = mouseX;
+            int y = mouseY;
+            x += toolImage.getRelativeLocatoin().x * zoom;
+            y += toolImage.getRelativeLocatoin().y * zoom;
+            int w = (int) Math.ceil(toolImage.getToolImage().getWidth() * zoom);
+            int h = (int) Math.ceil(toolImage.getToolImage().getHeight() * zoom);
+            return new Rectangle(x, y, w, h);
+        }
+    }
+
+    /**
+     * Count area on panel where cursor will be painted (including zoom).
+     *
+     * @param toolCursor Tool cursor used for counting
+     * @param mouseX X position of mouse
+     * @param mouseY Y position of mouse
+     */
+    protected Rectangle getToolCursorDirtyArea(ToolCursor toolCursor, int mouseX,
+            int mouseY) {
+        synchronized (this) {
+            if (toolCursor == null || mouseX == -1 || mouseY == -1) {
+                return null;
+            }
+        }
+        float zoom = canvasImage.getZoom();
+        synchronized (this) {
+            int x = (int) (mouseX + toolCursor.getRelativeLocatoin().x * zoom);
+            int y = (int) (mouseY + toolCursor.getRelativeLocatoin().y * zoom);
+
+            if (toolCursor.getLocationMode() == ToolCursor.LOCATION_MODE_CENTER) {
+                x -= toolCursor.getCursorImage().getWidth() / 2;
+                y -= toolCursor.getCursorImage().getHeight() / 2;
+            }
+
+            int w = (int) Math.ceil(zoom * toolCursor.getCursorImage().
+                    getWidth());
+            int h = (int) Math.ceil(zoom * toolCursor.getCursorImage().
+                    getHeight());
+            return new Rectangle(x, y, w, h);
+        }
+    }
+
+    /**
+     * Count and set dirty area after mouse moving.
+     */
+    protected void dirtyMouseMoved(int prevX, int prevY, int nowX, int nowY) {
+        // previsou position
+        dirtyArea(getToolCursorDirtyArea(toolCursor, prevX, prevY));
+        dirtyArea(countToolImageDirtyArea(toolImage, prevX, prevY));
+        // new position
+        dirtyArea(getToolCursorDirtyArea(toolCursor, nowX, nowY));
+        dirtyArea(countToolImageDirtyArea(toolImage, nowX, nowY));
+    }
+
     @Override
     public void setMouseCursor(MouseCursor mouseCursor) {
         //TODO:
@@ -200,6 +319,8 @@ public class JustCanvas extends JPanel implements Informing, Visible, CanvasImag
 
     @Override
     public void setToolCursor(ToolCursor toolCursor) {
+        dirtyArea(getToolCursorDirtyArea(this.toolCursor, mouseX, mouseY));
+        dirtyArea(getToolCursorDirtyArea(toolCursor, mouseX, mouseY));
         synchronized (this) {
             this.toolCursor = toolCursor;
             repaint();
@@ -208,7 +329,9 @@ public class JustCanvas extends JPanel implements Informing, Visible, CanvasImag
 
     @Override
     public void setToolImage(ToolImage toolImage) {
-        synchronized(this) {
+        dirtyArea(countToolImageDirtyArea(this.toolImage, mouseX, mouseY));
+        dirtyArea(countToolImageDirtyArea(toolImage, mouseX, mouseY));
+        synchronized (this) {
             this.toolImage = toolImage;
             repaint();
         }
@@ -216,6 +339,7 @@ public class JustCanvas extends JPanel implements Informing, Visible, CanvasImag
 
     @Override
     public void change(Rectangle rect) {
+        dirtyArea(rect);
         synchronized (this) {
             mainImage.reconstruct(rect, canvasImage);
             repaint();
@@ -224,6 +348,7 @@ public class JustCanvas extends JPanel implements Informing, Visible, CanvasImag
 
     @Override
     public void selectionChange() {
+        dirtyAll();
         synchronized (this) {
             mainImage.reconstruct(canvasImage);
             repaint();
@@ -265,6 +390,7 @@ public class JustCanvas extends JPanel implements Informing, Visible, CanvasImag
 
     @Override
     public void mouseExited(MouseEvent e) {
+        dirtyMouseMoved(mouseX, mouseY, -1, -1);
         synchronized (this) {
             mouseX = -1;
             mouseY = -1;
@@ -275,6 +401,7 @@ public class JustCanvas extends JPanel implements Informing, Visible, CanvasImag
 
     @Override
     public void mouseDragged(MouseEvent e) {
+        dirtyMouseMoved(mouseX, mouseY, e.getX(), e.getY());
         synchronized (this) {
             mouseX = e.getX();
             mouseY = e.getY();
@@ -285,6 +412,7 @@ public class JustCanvas extends JPanel implements Informing, Visible, CanvasImag
 
     @Override
     public void mouseMoved(MouseEvent e) {
+        dirtyMouseMoved(mouseX, mouseY, e.getX(), e.getY());
         synchronized (this) {
             mouseX = e.getX();
             mouseY = e.getY();
@@ -312,5 +440,33 @@ public class JustCanvas extends JPanel implements Informing, Visible, CanvasImag
         synchronized (this) {
             return infoListeners.remove(listener);
         }
+    }
+
+    @Override
+    public void componentResized(ComponentEvent e) {
+        dirtyAll();
+    }
+
+    @Override
+    public void componentMoved(ComponentEvent e) {
+        dirtyAll();
+    }
+
+    @Override
+    public void componentShown(ComponentEvent e) {
+        dirtyAll();
+    }
+
+    @Override
+    public void componentHidden(ComponentEvent e) {
+    }
+
+    @Override
+    public void componentAdded(ContainerEvent e) {
+        dirtyAll();
+    }
+
+    @Override
+    public void componentRemoved(ContainerEvent e) {
     }
 }
