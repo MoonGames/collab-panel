@@ -50,4 +50,12 @@ public interface Selectionable {
      * @see cz.mgn.collabcanvas.interfaces.selectionable.SelectionUpdate
      */
     public void select(SelectionUpdate selectoinUpdate);
+
+    /**
+     * Returns if is selected all by selectAll() call.
+     *
+     * @see
+     * cz.mgn.collabcanvas.interfaces.selectionable.Selectionable#selectAll()
+     */
+    public boolean isSelectedAll();
 }

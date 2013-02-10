@@ -660,4 +660,11 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable,
             changeListener.selectionChange();
         }
     }
+
+    @Override
+    public boolean isSelectedAll() {
+        synchronized (this) {
+            return selection.isSelectedAll();
+        }
+    }
 }

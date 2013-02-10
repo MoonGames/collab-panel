@@ -75,6 +75,18 @@ public class Selection {
         generateOutline();
     }
 
+    /**
+     * Returns if is selected all by update(null) call. For example if is
+     * selected all by selecting enough area (equal or bigger then canvas)
+     * returns false.
+     *
+     * @see
+     * cz.mgn.collabcanvas.canvas.image.selection.Selection#update(cz.mgn.collabcanvas.interfaces.selectionable.SelectionUpdate)
+     */
+    public boolean isSelectedAll() {
+        return all;
+    }
+
     protected void generateOutline() {
         if (all) {
             selectionOutline = null;
@@ -119,7 +131,6 @@ public class Selection {
                     break;
             }
             all = false;
-
         }
         generateOutline();
     }

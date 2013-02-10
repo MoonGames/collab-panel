@@ -605,6 +605,9 @@ public class CanvasKeyEvent implements CollabPanelKeyEvent {
             case KeyEvent.VK_BEGIN:
                 code = CollabPanelKeyEvent.KeyCode.CODE_BEGIN;
                 break;
+            case KeyEvent.VK_DELETE:
+                code = CollabPanelKeyEvent.KeyCode.CODE_DELETE;
+                break;
         }
         return code;
     }
