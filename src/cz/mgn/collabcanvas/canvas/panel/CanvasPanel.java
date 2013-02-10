@@ -43,7 +43,9 @@ import javax.swing.JScrollPane;
  *
  * @author Martin Indra <aktive@seznam.cz>
  */
-public class CanvasPanel extends JPanel implements Listenable, CanvasImageChangeListener, MouseListener, MouseMotionListener, MouseWheelListener {
+public class CanvasPanel extends JPanel implements Listenable,
+        CanvasImageChangeListener, MouseListener, MouseMotionListener,
+        MouseWheelListener {
 
     protected CanvasImage canvasImage;
     protected JScrollPane scrollPane;

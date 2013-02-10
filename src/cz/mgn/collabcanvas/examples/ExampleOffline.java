@@ -86,6 +86,8 @@ public class ExampleOffline implements ActionListener, CollabPanelListener {
         // add canvas to frame
         frame.getContentPane().add(canvas.getCanvasComponent(),
                 BorderLayout.CENTER);
+
+        frame.validate();
     }
 
     private void initGUI() {
