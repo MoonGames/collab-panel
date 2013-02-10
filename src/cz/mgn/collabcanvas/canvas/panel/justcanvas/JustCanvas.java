@@ -286,16 +286,20 @@ public class JustCanvas extends JPanel implements Informing, Visible,
         synchronized (this) {
             int x = (int) (mouseX + toolCursor.getRelativeLocatoin().x * zoom);
             int y = (int) (mouseY + toolCursor.getRelativeLocatoin().y * zoom);
-
-            if (toolCursor.getLocationMode() == ToolCursor.LOCATION_MODE_CENTER) {
-                x -= toolCursor.getCursorImage().getWidth() / 2;
-                y -= toolCursor.getCursorImage().getHeight() / 2;
-            }
-
             int w = (int) Math.ceil(zoom * toolCursor.getCursorImage().
                     getWidth());
             int h = (int) Math.ceil(zoom * toolCursor.getCursorImage().
                     getHeight());
+
+            if (toolCursor.getLocationMode() == ToolCursor.LOCATION_MODE_CENTER) {
+                x -= Math.ceil((toolCursor.getCursorImage().getWidth() / 2)
+                        * zoom);
+                y -= Math.ceil((toolCursor.getCursorImage().getHeight() / 2)
+                        * zoom);
+                w += 1;
+                h += 1;
+            }
+
             return new Rectangle(x, y, w, h);
         }
     }
