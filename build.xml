@@ -15,7 +15,7 @@
     </target>
 
     <target name="compile" depends="init">
-        <javac srcdir="${srcdir}" destdir="${bindir}" includes="**/*" source="1.7" target="1.7" />
+        <javac srcdir="${srcdir}" destdir="${bindir}" includes="**/*" source="1.6" target="1.6" />
     </target>
 
     <target name="jarInit" depends="compile">
