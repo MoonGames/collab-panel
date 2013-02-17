@@ -218,12 +218,14 @@ public class JustCanvas extends JPanel implements Informing, Visible,
      * Call repaint just on dirty area if any if not repaint all.
      */
     protected void dirtyRepaint() {
-        if (dirty != null) {
-            repaint(dirty);
-            dirty = null;
-        } else {
-            repaint();
-        }
+        // synchronized (dirty) {
+            if (dirty != null) {
+                repaint(dirty);
+                dirty = null;
+            } else {
+                repaint();
+            }
+        //}
     }
 
     /**
@@ -332,8 +334,8 @@ public class JustCanvas extends JPanel implements Informing, Visible,
         dirtyArea(getToolCursorDirtyArea(toolCursor, mouseX, mouseY));
         synchronized (this) {
             this.toolCursor = toolCursor;
-            dirtyRepaint();
         }
+        dirtyRepaint();
     }
 
     @Override
@@ -342,26 +344,22 @@ public class JustCanvas extends JPanel implements Informing, Visible,
         dirtyArea(countToolImageDirtyArea(toolImage, mouseX, mouseY));
         synchronized (this) {
             this.toolImage = toolImage;
-            dirtyRepaint();
         }
+        dirtyRepaint();
     }
 
     @Override
     public void change(Rectangle rect) {
         dirtyArea(rect);
         mainImage.reconstruct(rect, canvasImage);
-        synchronized (this) {
-            dirtyRepaint();
-        }
+        dirtyRepaint();
     }
 
     @Override
     public void selectionChange() {
         dirtyAll();
         mainImage.reconstruct(canvasImage);
-        synchronized (this) {
-            dirtyRepaint();
-        }
+        dirtyRepaint();
     }
 
     @Override
@@ -403,8 +401,8 @@ public class JustCanvas extends JPanel implements Informing, Visible,
         synchronized (this) {
             mouseX = -1;
             mouseY = -1;
-            dirtyRepaint();
         }
+        dirtyRepaint();
         infoInformings();
     }
 
@@ -414,8 +412,8 @@ public class JustCanvas extends JPanel implements Informing, Visible,
         synchronized (this) {
             mouseX = e.getX();
             mouseY = e.getY();
-            dirtyRepaint();
         }
+        dirtyRepaint();
         infoInformings();
     }
 
@@ -425,8 +423,8 @@ public class JustCanvas extends JPanel implements Informing, Visible,
         synchronized (this) {
             mouseX = e.getX();
             mouseY = e.getY();
-            dirtyRepaint();
         }
+        dirtyRepaint();
         infoInformings();
     }
 
