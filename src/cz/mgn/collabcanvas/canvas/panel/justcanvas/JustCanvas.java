@@ -349,8 +349,8 @@ public class JustCanvas extends JPanel implements Informing, Visible,
     @Override
     public void change(Rectangle rect) {
         dirtyArea(rect);
+        mainImage.reconstruct(rect, canvasImage);
         synchronized (this) {
-            mainImage.reconstruct(rect, canvasImage);
             dirtyRepaint();
         }
     }
@@ -358,8 +358,8 @@ public class JustCanvas extends JPanel implements Informing, Visible,
     @Override
     public void selectionChange() {
         dirtyAll();
+        mainImage.reconstruct(canvasImage);
         synchronized (this) {
-            mainImage.reconstruct(canvasImage);
             dirtyRepaint();
         }
     }
