@@ -28,6 +28,7 @@ import cz.mgn.collabcanvas.interfaces.visible.MouseCursor;
 import cz.mgn.collabcanvas.interfaces.visible.ToolCursor;
 import cz.mgn.collabcanvas.interfaces.visible.ToolImage;
 import cz.mgn.collabcanvas.interfaces.visible.Visible;
+import cz.mgn.collabcanvas.utils.ThreadBlocker;
 import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
@@ -97,14 +98,16 @@ public class JustCanvas extends JPanel implements Informing, Visible,
     public Point translateMousePointNoZoom(Point point) {
         Point result = new Point(
                 point.x - Math.max(getWidth() - mainImage.getImage().getWidth(),
-                0) / 2,
+                        0) / 2,
                 point.y - Math.max(getHeight() - mainImage.getImage().
-                getHeight(), 0) / 2);
+                        getHeight(), 0) / 2);
         return result;
     }
 
     @Override
     public void paintComponent(Graphics g2) {
+        ThreadBlocker.getInstance().block();
+
         Rectangle rect = getVisibleRect();
         Graphics2D g = (Graphics2D) g2;
         g.clipRect(rect.x, rect.y, rect.width, rect.height);
@@ -112,6 +115,8 @@ public class JustCanvas extends JPanel implements Informing, Visible,
         paintImage(g);
         paintToolImage(g);
         paintToolCursor(g);
+
+        ThreadBlocker.getInstance().unblock();
     }
 
     protected void paintToolCursor(Graphics2D g) {
@@ -209,8 +214,10 @@ public class JustCanvas extends JPanel implements Informing, Visible,
                 y = translatedMousePoint.y;
             }
         }
-        for (InfoListener infoListener : infoListeners) {
-            infoListener.mouseMoved(x, y);
+        synchronized (infoListeners) {
+            for (InfoListener infoListener : infoListeners) {
+                infoListener.mouseMoved(x, y);
+            }
         }
     }
 
@@ -218,35 +225,29 @@ public class JustCanvas extends JPanel implements Informing, Visible,
      * Call repaint just on dirty area if any if not repaint all.
      */
     protected void dirtyRepaint() {
-        // synchronized (dirty) {
-            if (dirty != null) {
-                repaint(dirty);
-                dirty = null;
-            } else {
-                repaint();
-            }
-        //}
+        if (dirty != null) {
+            repaint(dirty);
+            dirty = null;
+        } else {
+            repaint();
+        }
     }
 
     /**
      * Add to current dirty area new.
      */
     protected void dirtyArea(Rectangle dirty) {
-        synchronized (this) {
-            if (dirty != null) {
-                if (this.dirty == null) {
-                    this.dirty = dirty;
-                } else {
-                    this.dirty.add(dirty);
-                }
+        if (dirty != null) {
+            if (this.dirty == null) {
+                this.dirty = dirty;
+            } else {
+                this.dirty.add(dirty);
             }
         }
     }
 
     protected void dirtyAll() {
-        synchronized (this) {
-            dirty = new Rectangle(0, 0, getWidth(), getHeight());
-        }
+        dirty = new Rectangle(0, 0, getWidth(), getHeight());
     }
 
     /**
@@ -258,21 +259,19 @@ public class JustCanvas extends JPanel implements Informing, Visible,
      */
     protected Rectangle countToolImageDirtyArea(ToolImage toolImage, int mouseX,
             int mouseY) {
-        synchronized (this) {
-            if (toolImage == null || mouseX == -1 || mouseY == -1) {
-                return null;
-            }
+
+        if (toolImage == null || mouseX == -1 || mouseY == -1) {
+            return null;
         }
         float zoom = canvasImage.getZoom();
-        synchronized (this) {
-            int x = mouseX;
-            int y = mouseY;
-            x += toolImage.getRelativeLocatoin().x * zoom;
-            y += toolImage.getRelativeLocatoin().y * zoom;
-            int w = (int) Math.ceil(toolImage.getToolImage().getWidth() * zoom);
-            int h = (int) Math.ceil(toolImage.getToolImage().getHeight() * zoom);
-            return new Rectangle(x, y, w, h);
-        }
+
+        int x = mouseX;
+        int y = mouseY;
+        x += toolImage.getRelativeLocatoin().x * zoom;
+        y += toolImage.getRelativeLocatoin().y * zoom;
+        int w = (int) Math.ceil(toolImage.getToolImage().getWidth() * zoom);
+        int h = (int) Math.ceil(toolImage.getToolImage().getHeight() * zoom);
+        return new Rectangle(x, y, w, h);
     }
 
     /**
@@ -284,31 +283,27 @@ public class JustCanvas extends JPanel implements Informing, Visible,
      */
     protected Rectangle getToolCursorDirtyArea(ToolCursor toolCursor, int mouseX,
             int mouseY) {
-        synchronized (this) {
-            if (toolCursor == null || mouseX == -1 || mouseY == -1) {
-                return null;
-            }
+        if (toolCursor == null || mouseX == -1 || mouseY == -1) {
+            return null;
         }
         float zoom = canvasImage.getZoom();
-        synchronized (this) {
-            int x = (int) (mouseX + toolCursor.getRelativeLocatoin().x * zoom);
-            int y = (int) (mouseY + toolCursor.getRelativeLocatoin().y * zoom);
-            int w = (int) Math.ceil(zoom * toolCursor.getCursorImage().
-                    getWidth());
-            int h = (int) Math.ceil(zoom * toolCursor.getCursorImage().
-                    getHeight());
+        int x = (int) (mouseX + toolCursor.getRelativeLocatoin().x * zoom);
+        int y = (int) (mouseY + toolCursor.getRelativeLocatoin().y * zoom);
+        int w = (int) Math.ceil(zoom * toolCursor.getCursorImage().
+                getWidth());
+        int h = (int) Math.ceil(zoom * toolCursor.getCursorImage().
+                getHeight());
 
-            if (toolCursor.getLocationMode() == ToolCursor.LOCATION_MODE_CENTER) {
-                x -= Math.ceil((toolCursor.getCursorImage().getWidth() / 2)
-                        * zoom);
-                y -= Math.ceil((toolCursor.getCursorImage().getHeight() / 2)
-                        * zoom);
-                w += 1;
-                h += 1;
-            }
-
-            return new Rectangle(x, y, w, h);
+        if (toolCursor.getLocationMode() == ToolCursor.LOCATION_MODE_CENTER) {
+            x -= Math.ceil((toolCursor.getCursorImage().getWidth() / 2)
+                    * zoom);
+            y -= Math.ceil((toolCursor.getCursorImage().getHeight() / 2)
+                    * zoom);
+            w += 1;
+            h += 1;
         }
+
+        return new Rectangle(x, y, w, h);
     }
 
     /**
@@ -332,9 +327,7 @@ public class JustCanvas extends JPanel implements Informing, Visible,
     public void setToolCursor(ToolCursor toolCursor) {
         dirtyArea(getToolCursorDirtyArea(this.toolCursor, mouseX, mouseY));
         dirtyArea(getToolCursorDirtyArea(toolCursor, mouseX, mouseY));
-        synchronized (this) {
-            this.toolCursor = toolCursor;
-        }
+        this.toolCursor = toolCursor;
         dirtyRepaint();
     }
 
@@ -342,40 +335,36 @@ public class JustCanvas extends JPanel implements Informing, Visible,
     public void setToolImage(ToolImage toolImage) {
         dirtyArea(countToolImageDirtyArea(this.toolImage, mouseX, mouseY));
         dirtyArea(countToolImageDirtyArea(toolImage, mouseX, mouseY));
-        synchronized (this) {
-            this.toolImage = toolImage;
-        }
+        this.toolImage = toolImage;
         dirtyRepaint();
     }
 
     @Override
     public void change(Rectangle rect) {
         dirtyArea(rect);
-        mainImage.reconstruct(rect, canvasImage);
+        //probably done
+        //TODO: move it elsewhere mainImage.reconstruct(rect, canvasImage);
         dirtyRepaint();
     }
 
     @Override
     public void selectionChange() {
         dirtyAll();
-        mainImage.reconstruct(canvasImage);
+        //probably done
+        //TODO: move it elsewhere mainImage.reconstruct(canvasImage);
         dirtyRepaint();
     }
 
     @Override
     public void imageResized(int width, int height) {
-        synchronized (this) {
-            setPreferredSize(new Dimension(width, height));
-            setSize(getPreferredSize());
-            mainImage.imageResized(width, height);
-        }
+        setPreferredSize(new Dimension(width, height));
+        setSize(getPreferredSize());
+        //probably done
+        //TODO: move it elsewhere mainImage.imageResized(width, height);
     }
 
     @Override
     public void zoomChanged(float zoom) {
-        synchronized (this) {
-            mainImage.zoomChanged(zoom, canvasImage);
-        }
     }
 
     @Override
@@ -398,10 +387,8 @@ public class JustCanvas extends JPanel implements Informing, Visible,
     @Override
     public void mouseExited(MouseEvent e) {
         dirtyMouseMoved(mouseX, mouseY, -1, -1);
-        synchronized (this) {
-            mouseX = -1;
-            mouseY = -1;
-        }
+        mouseX = -1;
+        mouseY = -1;
         dirtyRepaint();
         infoInformings();
     }
@@ -409,10 +396,8 @@ public class JustCanvas extends JPanel implements Informing, Visible,
     @Override
     public void mouseDragged(MouseEvent e) {
         dirtyMouseMoved(mouseX, mouseY, e.getX(), e.getY());
-        synchronized (this) {
-            mouseX = e.getX();
-            mouseY = e.getY();
-        }
+        mouseX = e.getX();
+        mouseY = e.getY();
         dirtyRepaint();
         infoInformings();
     }
@@ -420,19 +405,15 @@ public class JustCanvas extends JPanel implements Informing, Visible,
     @Override
     public void mouseMoved(MouseEvent e) {
         dirtyMouseMoved(mouseX, mouseY, e.getX(), e.getY());
-        synchronized (this) {
-            mouseX = e.getX();
-            mouseY = e.getY();
-        }
+        mouseX = e.getX();
+        mouseY = e.getY();
         dirtyRepaint();
         infoInformings();
     }
 
     @Override
     public Set<InfoListener> getInfoListeners() {
-        synchronized (this) {
-            return infoListeners;
-        }
+        return infoListeners;
     }
 
     @Override

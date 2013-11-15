@@ -18,7 +18,6 @@
  * You should have received a copy of the GNU General Public License
  * along with Collab canvas.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package cz.mgn.collabcanvas.canvas.panel.justcanvas;
 
 import cz.mgn.collabcanvas.canvas.image.CanvasImage;
@@ -69,41 +68,33 @@ public class MainImage {
         return image;
     }
 
-    public void zoomChanged(float zoom, CanvasImage image) {
-        image.getSelection().setOutlineZoom(zoom);
-    }
-
-    public void reconstruct(CanvasImage image) {
-        reconstruct(new Rectangle(0, 0, image.getWidth() - 2, image.getHeight() - 2), image);
-    }
+//    public void reconstruct(CanvasImage image) {
+//        reconstruct(new Rectangle(0, 0, image.getWidth() - 2, image.getHeight() - 2), image);
+//    }
 
     public void reconstruct(Rectangle rect, CanvasImage image) {
-        synchronized (this) {
-            Graphics2D g = (Graphics2D) this.image.getGraphics();
-            g.clipRect(1, 1, this.image.getWidth() - 2, this.image.getHeight() - 2);
-            int x1 = rect.x;
-            int x2 = rect.x + rect.width;
-            int y1 = rect.y;
-            int y2 = rect.y + rect.height;
+        Graphics2D g = (Graphics2D) this.image.getGraphics();
+        g.clipRect(1, 1, this.image.getWidth() - 2, this.image.getHeight() - 2);
+        int x1 = rect.x;
+        int x2 = rect.x + rect.width;
+        int y1 = rect.y;
+        int y2 = rect.y + rect.height;
 
-            g.drawImage(alpha, x1 + 1, y1 + 1, x2 + 1, y2 + 1, x1, y1, x2, y2, null);
-            g.drawImage(image.getZoomedImage(), x1 + 1, y1 + 1, x2 + 1, y2 + 1, x1, y1, x2, y2, null);
-            g.drawImage(image.getSelection().getSelectionOutline(), x1 + 1, y1 + 1, x2 + 1, y2 + 1, x1, y1, x2, y2, null);
-            g.dispose();
-        }
+        g.drawImage(alpha, x1 + 1, y1 + 1, x2 + 1, y2 + 1, x1, y1, x2, y2, null);
+        g.drawImage(image.getZoomedImage(), x1 + 1, y1 + 1, x2 + 1, y2 + 1, x1, y1, x2, y2, null);
+        g.drawImage(image.getSelection().getSelectionOutline(), x1 + 1, y1 + 1, x2 + 1, y2 + 1, x1, y1, x2, y2, null);
+        g.dispose();
     }
 
     public void imageResized(int width, int height) {
-        synchronized (this) {
-            image = new BufferedImage(width + 2, height + 2, BufferedImage.TYPE_4BYTE_ABGR);
-            Graphics2D g = (Graphics2D) image.getGraphics();
-            g.setColor(Color.WHITE);
-            g.drawRect(0, 0, width + 1, height + 1);
-            g.setColor(Color.BLACK);
-            g.setStroke(new BasicStroke(1f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 1f, new float[]{2f}, 0f));
-            g.drawRect(0, 0, width + 1, height + 1);
-            g.dispose();
-            generateAlpha();
-        }
+        image = new BufferedImage(width + 2, height + 2, BufferedImage.TYPE_4BYTE_ABGR);
+        Graphics2D g = (Graphics2D) image.getGraphics();
+        g.setColor(Color.WHITE);
+        g.drawRect(0, 0, width + 1, height + 1);
+        g.setColor(Color.BLACK);
+        g.setStroke(new BasicStroke(1f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 1f, new float[]{2f}, 0f));
+        g.drawRect(0, 0, width + 1, height + 1);
+        g.dispose();
+        generateAlpha();
     }
 }

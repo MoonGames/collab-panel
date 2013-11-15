@@ -37,6 +37,7 @@ import cz.mgn.collabcanvas.interfaces.paintable.Paintable;
 import cz.mgn.collabcanvas.interfaces.selectionable.SelectionUpdate;
 import cz.mgn.collabcanvas.interfaces.selectionable.Selectionable;
 import cz.mgn.collabcanvas.interfaces.zoomable.Zoomable;
+import cz.mgn.collabcanvas.utils.ThreadBlocker;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -89,9 +90,7 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable,
     }
 
     public void setChangeListener(CanvasImageChangeListener changeListener) {
-        synchronized (this) {
-            this.changeListener = changeListener;
-        }
+        this.changeListener = changeListener;
     }
 
     public BufferedImage getNormalImage() {
@@ -99,9 +98,7 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable,
     }
 
     public BufferedImage getZoomedImage() {
-        synchronized (this) {
-            return zoomedImage;
-        }
+        return zoomedImage;
     }
 
     public Selection getSelection() {
@@ -127,17 +124,19 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable,
         Graphics2D g = (Graphics2D) reconstruction.getGraphics();
         int x2 = update.x + update.width;
         int y2 = update.y + update.height;
-        for (Layer layer : layers) {
-            if (layer.getOpaqueness() > 0) {
-                g.setComposite(AlphaComposite.getInstance(
-                        AlphaComposite.SRC_OVER, layer.getOpaqueness()));
-                BufferedImage img = layer.getImage();
-                if (network) {
-                    img = layer.getNetworkImage().addLocalChanges(img, update.x,
-                            update.y, update.width, update.height);
+        synchronized (layers) {
+            for (Layer layer : layers) {
+                if (layer.getOpaqueness() > 0) {
+                    g.setComposite(AlphaComposite.getInstance(
+                            AlphaComposite.SRC_OVER, layer.getOpaqueness()));
+                    BufferedImage img = layer.getImage();
+                    if (network) {
+                        img = layer.getNetworkImage().addLocalChanges(img, update.x,
+                                update.y, update.width, update.height);
+                    }
+                    g.drawImage(img, 0, 0, update.width, update.height,
+                            update.x, update.y, x2, y2, null);
                 }
-                g.drawImage(img, 0, 0, update.width, update.height,
-                        update.x, update.y, x2, y2, null);
             }
         }
         g.dispose();
@@ -182,20 +181,20 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable,
         if (network) {
             return new Layer(layerID, width, height,
                     new NetworkImage(new NetworkListener() {
-                @Override
-                public void sendUpdate(NetworkUpdate update) {
-                    for (NetworkListener listener : networkListeners) {
-                        listener.sendUpdate(update);
-                    }
-                }
+                        @Override
+                        public void sendUpdate(NetworkUpdate update) {
+                            for (NetworkListener listener : networkListeners) {
+                                listener.sendUpdate(update);
+                            }
+                        }
 
-                @Override
-                public void unreachedUpdateRemoved(NetworkUpdate update) {
-                    for (NetworkListener listener : networkListeners) {
-                        listener.unreachedUpdateRemoved(update);
-                    }
-                }
-            }, idGenerator, layerID, canvasID));
+                        @Override
+                        public void unreachedUpdateRemoved(NetworkUpdate update) {
+                            for (NetworkListener listener : networkListeners) {
+                                listener.unreachedUpdateRemoved(update);
+                            }
+                        }
+                    }, idGenerator, layerID, canvasID));
         }
         return new Layer(layerID, width, height);
     }
@@ -204,18 +203,22 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable,
      * vrati pozici vrtstvy v seznamu vrstev podle ID
      */
     protected int getLayerIndexByID(int layerID) {
-        for (int i = 0; i < layers.size(); i++) {
-            if (layers.get(i).getID() == layerID) {
-                return i;
+        synchronized (layers) {
+            for (int i = 0; i < layers.size(); i++) {
+                if (layers.get(i).getID() == layerID) {
+                    return i;
+                }
             }
         }
         return -1;
     }
 
     protected Layer getLayerByID(int layerID) {
-        for (Layer layer : layers) {
-            if (layer.getID() == layerID) {
-                return layer;
+        synchronized (layers) {
+            for (Layer layer : layers) {
+                if (layer.getID() == layerID) {
+                    return layer;
+                }
             }
         }
         return null;
@@ -225,11 +228,13 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable,
     public void run() {
         running = true;
         while (running) {
-            synchronized (this) {
+            ThreadBlocker.getInstance().block();
+            synchronized (layers) {
                 for (Layer layer : layers) {
                     layer.getNetworkImage().update();
                 }
             }
+            ThreadBlocker.getInstance().unblock();
             try {
                 Thread.sleep(300);
             } catch (InterruptedException ex) {
@@ -240,117 +245,112 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable,
     }
 
     public void destroy() {
-        synchronized (this) {
-            running = false;
-            infoListeners.clear();
-            if (network) {
-                networkListeners.clear();
-            }
+        running = false;
+        infoListeners.clear();
+        if (network) {
+            networkListeners.clear();
         }
     }
 
     @Override
     public Set<NetworkListener> getListeners() {
-        synchronized (this) {
-            return networkListeners;
-        }
+        return networkListeners;
     }
 
     @Override
     public void addListener(NetworkListener listener) {
-        synchronized (this) {
+        synchronized (networkListeners) {
             networkListeners.add(listener);
         }
     }
 
     @Override
     public boolean removeListener(NetworkListener listener) {
-        synchronized (this) {
+        synchronized (networkListeners) {
             return networkListeners.remove(listener);
         }
     }
 
     @Override
     public void updateReceived(NetworkUpdate update) {
-        synchronized (this) {
-            Layer layer = getLayerByID(update.getUpdateLayerID());
-            if (layer != null) {
-                int x = update.getUpdateCoordinates().x;
-                int y = update.getUpdateCoordinates().y;
-                BufferedImage layerImage = layer.getImage();
-                BufferedImage updateImage = update.getUpdateImage();
-                int w = updateImage.getWidth();
-                int h = updateImage.getHeight();
-                if (update.isAdd()) {
-                    ImageProcessor.addToImage(layerImage, updateImage, x, y, x,
-                            y, w, h);
-                } else {
-                    ImageProcessor.
-                            removeFromImage(layerImage, updateImage, x, y, x, y,
-                            w, h);
-                }
-                layer.getNetworkImage().updateReceived(update.getUpdateID());
-                Rectangle dirty = new Rectangle(update.getUpdateCoordinates(),
-                        new Dimension(update.getUpdateImage().getWidth(),
-                        update.getUpdateImage().getHeight()));
-                reconstructImage(dirty);
-                informAboutUpdate(dirty);
+        ThreadBlocker.getInstance().block();
+        Layer layer = getLayerByID(update.getUpdateLayerID());
+        if (layer != null) {
+            int x = update.getUpdateCoordinates().x;
+            int y = update.getUpdateCoordinates().y;
+            BufferedImage layerImage = layer.getImage();
+            BufferedImage updateImage = update.getUpdateImage();
+            int w = updateImage.getWidth();
+            int h = updateImage.getHeight();
+            if (update.isAdd()) {
+                ImageProcessor.addToImage(layerImage, updateImage, x, y, x,
+                        y, w, h);
+            } else {
+                ImageProcessor.
+                        removeFromImage(layerImage, updateImage, x, y, x, y,
+                                w, h);
             }
+            layer.getNetworkImage().updateReceived(update.getUpdateID());
+            Rectangle dirty = new Rectangle(update.getUpdateCoordinates(),
+                    new Dimension(update.getUpdateImage().getWidth(),
+                            update.getUpdateImage().getHeight()));
+            reconstructImage(dirty);
+            informAboutUpdate(dirty);
         }
+        ThreadBlocker.getInstance().unblock();
     }
 
     @Override
     public void paint(PaintData paintData) {
-        synchronized (this) {
-            if (selectedLayer != null) {
-                ArrayList<PaintImage> paintImages = paintData.getPaintImages();
-                UnionDirty dirty = new UnionDirty();
-                for (PaintImage paintImage : paintImages) {
-                    BufferedImage image = paintImage.getImage();
-                    ArrayList<Point> applyPoints = paintImage.getApplyPoints();
-                    boolean add = paintImage.isAddChange();
-                    for (Point applyPoint : applyPoints) {
-                        BufferedImage pImage = selection.filterPaint(
-                                applyPoint.x, applyPoint.y, image);
-                        dirty.addDirty(new Rectangle(applyPoint.x, applyPoint.y,
-                                image.getWidth(), image.getHeight()));
-                        if (network) {
-                            if (add) {
-                                selectedLayer.getNetworkImage().paintAdd(pImage,
-                                        applyPoint.x, applyPoint.y);
-                            } else {
-                                selectedLayer.getNetworkImage().paintRemove(
-                                        pImage, applyPoint.x, applyPoint.y);
-                            }
+        ThreadBlocker.getInstance().block();
+        if (selectedLayer != null) {
+            ArrayList<PaintImage> paintImages = paintData.getPaintImages();
+            UnionDirty dirty = new UnionDirty();
+            for (PaintImage paintImage : paintImages) {
+                BufferedImage image = paintImage.getImage();
+                ArrayList<Point> applyPoints = paintImage.getApplyPoints();
+                boolean add = paintImage.isAddChange();
+                for (Point applyPoint : applyPoints) {
+                    BufferedImage pImage = selection.filterPaint(
+                            applyPoint.x, applyPoint.y, image);
+                    dirty.addDirty(new Rectangle(applyPoint.x, applyPoint.y,
+                            image.getWidth(), image.getHeight()));
+                    if (network) {
+                        if (add) {
+                            selectedLayer.getNetworkImage().paintAdd(pImage,
+                                    applyPoint.x, applyPoint.y);
                         } else {
-                            if (add) {
-                                ImageProcessor.
-                                        paintAdd(selectedLayer.getImage(),
-                                        pImage, applyPoint.x, applyPoint.y);
-                            } else {
-                                ImageProcessor.paintRemove(selectedLayer.
-                                        getImage(), pImage, applyPoint.x,
-                                        applyPoint.y);
-                            }
+                            selectedLayer.getNetworkImage().paintRemove(
+                                    pImage, applyPoint.x, applyPoint.y);
+                        }
+                    } else {
+                        if (add) {
+                            ImageProcessor.
+                                    paintAdd(selectedLayer.getImage(),
+                                            pImage, applyPoint.x, applyPoint.y);
+                        } else {
+                            ImageProcessor.paintRemove(selectedLayer.
+                                    getImage(), pImage, applyPoint.x,
+                                    applyPoint.y);
                         }
                     }
                 }
-                reconstructImage(dirty.getSingleRectangle());
-                informAboutUpdate(dirty.getSingleRectangle());
             }
+            reconstructImage(dirty.getSingleRectangle());
+            informAboutUpdate(dirty.getSingleRectangle());
         }
+        ThreadBlocker.getInstance().block();
     }
 
     @Override
     public void selectLayer(int layerID) {
-        synchronized (this) {
-            selectedLayer = getLayerByID(layerID);
-        }
+        selectedLayer = getLayerByID(layerID);
     }
 
     @Override
     public void setLayersOrder(int[] order, boolean remove) {
-        synchronized (this) {
+        ThreadBlocker.getInstance().block();
+        synchronized (layers) {
             ArrayList<Layer> layersNew = new ArrayList<Layer>();
             for (int i = 0; i < order.length; i++) {
                 Layer add = getLayerByID(order[i]);
@@ -370,18 +370,19 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable,
                 layersNew2.removeAll(layers);
                 layers.addAll(layersNew2);
             }
-            if (selectedLayer != null) {
-                selectedLayer = getLayerByID(selectedLayer.getID());
-            }
-            Rectangle rect = new Rectangle(0, 0, width, height);
-            reconstructImage(rect);
-            informAboutUpdate(rect);
         }
+        if (selectedLayer != null) {
+            selectedLayer = getLayerByID(selectedLayer.getID());
+        }
+        Rectangle rect = new Rectangle(0, 0, width, height);
+        reconstructImage(rect);
+        informAboutUpdate(rect);
+        ThreadBlocker.getInstance().unblock();
     }
 
     @Override
     public int[] getLayersOrder() {
-        synchronized (this) {
+        synchronized (layers) {
             int[] order = new int[layers.size()];
             for (int i = 0; i < order.length; i++) {
                 order[i] = layers.get(i).getID();
@@ -392,175 +393,186 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable,
 
     @Override
     public void setLayerVisibility(int layerID, boolean visible) {
-        synchronized (this) {
-            Layer layer = getLayerByID(layerID);
-            float opaqueness = visible ? 1 : 0;
-            if (layer != null && layer.getOpaqueness() != opaqueness) {
-                layer.setOpaqueness(opaqueness);
-                Rectangle rect = new Rectangle(0, 0, width, height);
-                reconstructImage(rect);
-                informAboutUpdate(rect);
-            }
+        ThreadBlocker.getInstance().block();
+        Layer layer = getLayerByID(layerID);
+        float opaqueness = visible ? 1 : 0;
+        if (layer != null && layer.getOpaqueness() != opaqueness) {
+            layer.setOpaqueness(opaqueness);
+            Rectangle rect = new Rectangle(0, 0, width, height);
+            reconstructImage(rect);
+            informAboutUpdate(rect);
         }
+        ThreadBlocker.getInstance().unblock();
     }
 
     @Override
     public int getLayerVisibility(int layerID) {
-        synchronized (this) {
-            Layer layer = getLayerByID(layerID);
-            if (layer == null) {
-                return Paintable.LAYER_VISIBLITY_DOESNT_EXIST;
-            }
-            return layer.getOpaqueness() > 0 ? Paintable.LAYER_VISIBLITY_VISIBLE
-                    : Paintable.LAYER_VISIBLITY_INVISIBLE;
+        Layer layer = getLayerByID(layerID);
+        if (layer == null) {
+            return Paintable.LAYER_VISIBLITY_DOESNT_EXIST;
         }
+        return layer.getOpaqueness() > 0 ? Paintable.LAYER_VISIBLITY_VISIBLE
+                : Paintable.LAYER_VISIBLITY_INVISIBLE;
     }
 
     @Override
     public void setLayerOpaqueness(int layerID, float opaqueness) {
-        synchronized (this) {
-            Layer layer = getLayerByID(layerID);
-            if (layer != null && layer.getOpaqueness() != opaqueness) {
-                layer.setOpaqueness(opaqueness);
-                Rectangle rect = new Rectangle(0, 0, width, height);
-                reconstructImage(rect);
-                informAboutUpdate(rect);
-            }
+        ThreadBlocker.getInstance().block();
+        Layer layer = getLayerByID(layerID);
+        if (layer != null && layer.getOpaqueness() != opaqueness) {
+            layer.setOpaqueness(opaqueness);
+            Rectangle rect = new Rectangle(0, 0, width, height);
+            reconstructImage(rect);
+            informAboutUpdate(rect);
         }
+        ThreadBlocker.getInstance().unblock();
     }
 
     @Override
     public float getLayerOpaqueness(int layerID) {
-        synchronized (this) {
-            Layer layer = getLayerByID(layerID);
-            if (layer == null) {
-                return -1;
-            }
-            return layer.getOpaqueness();
+        Layer layer = getLayerByID(layerID);
+        if (layer == null) {
+            return -1;
         }
+        return layer.getOpaqueness();
     }
 
     @Override
     public int addLayer() {
-        synchronized (this) {
-            if (network) {
-                return -1;
-            }
-            Layer layer = createLayer(++lastLayerID);
-            layers.add(layer);
-            return layer.getID();
+        if (network) {
+            return -1;
         }
+        Layer layer = createLayer(++lastLayerID);
+        synchronized (layers) {
+            layers.add(layer);
+        }
+        return layer.getID();
     }
 
     @Override
     public boolean removeLayer(int layerID) {
-        synchronized (this) {
-            if (network) {
-                return false;
-            }
+        boolean result = false;
+        if (!network) {
+            ThreadBlocker.getInstance().block();
+
             int index = getLayerIndexByID(layerID);
-            layers.remove(index);
+            synchronized (layers) {
+                layers.remove(index);
+            }
             selectedLayer = getLayerByID(selectedLayer.getID());
             Rectangle rect = new Rectangle(0, 0, width, height);
             reconstructImage(rect);
             informAboutUpdate(rect);
-            return index >= 0;
+            result = index >= 0;
+
+            ThreadBlocker.getInstance().unblock();
         }
+
+        return result;
     }
 
     @Override
     public int getWidth() {
-        synchronized (this) {
-            return width;
-        }
+        return width;
     }
 
     @Override
     public int getHeight() {
-        synchronized (this) {
-            return height;
-        }
+        return height;
     }
 
     @Override
     public void setResolution(int width, int height) {
-        synchronized (this) {
-            this.width = width;
-            this.height = height;
-            selection.setResolution(width, height);
-            normalImage = new BufferedImage(width, height,
-                    BufferedImage.TYPE_4BYTE_ABGR);
-            Point size = transformPoint(new Point(width, height));
-            zoomedImage = new BufferedImage(size.x, size.y,
-                    BufferedImage.TYPE_4BYTE_ABGR);
+        ThreadBlocker.getInstance().block();
+
+        this.width = width;
+        this.height = height;
+        selection.setResolution(width, height);
+        normalImage = new BufferedImage(width, height,
+                BufferedImage.TYPE_4BYTE_ABGR);
+        Point size = transformPoint(new Point(width, height));
+        zoomedImage = new BufferedImage(size.x, size.y,
+                BufferedImage.TYPE_4BYTE_ABGR);
+        synchronized (layers) {
             for (Layer layer : layers) {
                 layer.setResolution(width, height);
             }
-            Rectangle rect = new Rectangle(0, 0, width, height);
-            reconstructImage(rect);
-            informAboutSize();
-            informAboutUpdate(rect);
         }
+        Rectangle rect = new Rectangle(0, 0, width, height);
+        reconstructImage(rect);
+        informAboutSize();
+        informAboutUpdate(rect);
+
+        ThreadBlocker.getInstance().unblock();
     }
 
     @Override
     public BufferedImage getSelectedLayerImage(Rectangle rect) {
-        synchronized (this) {
-            if (selectedLayer == null) {
-                return null;
-            }
+        BufferedImage result = null;
+
+        if (selectedLayer != null) {
+            ThreadBlocker.getInstance().block();
+
             if (rect == null) {
                 rect = new Rectangle(0, 0, getWidth(), getHeight());
             }
-            return reconstructNormalImageLayer(rect, selectedLayer);
+            result = reconstructNormalImageLayer(rect, selectedLayer);
+
+            ThreadBlocker.getInstance().unblock();
         }
+
+        return result;
     }
 
     @Override
     public BufferedImage getImage(Rectangle rect) {
-        synchronized (this) {
-            if (rect == null) {
-                rect = new Rectangle(0, 0, getWidth(), getHeight());
-            }
-            BufferedImage image = new BufferedImage(rect.width, rect.height,
-                    BufferedImage.TYPE_4BYTE_ABGR);
-            Graphics2D g = (Graphics2D) image.getGraphics();
-            g.drawImage(normalImage, 0, 0, rect.width, rect.height,
-                    rect.x, rect.y, rect.x + rect.width, rect.y + rect.height,
-                    null);
-            g.dispose();
-            return image;
+        ThreadBlocker.getInstance().block();
+
+        if (rect == null) {
+            rect = new Rectangle(0, 0, getWidth(), getHeight());
         }
+        BufferedImage image = new BufferedImage(rect.width, rect.height,
+                BufferedImage.TYPE_4BYTE_ABGR);
+        Graphics2D g = (Graphics2D) image.getGraphics();
+        g.drawImage(normalImage, 0, 0, rect.width, rect.height,
+                rect.x, rect.y, rect.x + rect.width, rect.y + rect.height,
+                null);
+        g.dispose();
+
+        ThreadBlocker.getInstance().unblock();
+
+        return image;
     }
 
     @Override
     public float getZoom() {
-        synchronized (this) {
-            return zoom.getZoom();
-        }
+        return zoom.getZoom();
     }
 
     @Override
     public float setZoom(float zoom) {
-        synchronized (this) {
-            float z = this.zoom.getZoom();
-            this.zoom.trySetZoom(zoom);
-            if (z != this.zoom.getZoom()) {
-                Point size = transformPoint(new Point(width, height));
-                zoomedImage = new BufferedImage(size.x, size.y,
-                        BufferedImage.TYPE_4BYTE_ABGR);
-                selection.setOutlineZoom(zoom);
-                Rectangle rect = new Rectangle(0, 0, width, height);
-                reconstructZoomedImage(rect);
-                informAboutSize();
-                informAboutUpdate(rect);
-                for (InfoListener infoListener : infoListeners) {
-                    infoListener.zoomChanged(this.zoom.getZoom());
-                }
-                changeListener.zoomChanged(zoom);
+        ThreadBlocker.getInstance().block();
+
+        float z = this.zoom.getZoom();
+        this.zoom.trySetZoom(zoom);
+        if (z != this.zoom.getZoom()) {
+            Point size = transformPoint(new Point(width, height));
+            zoomedImage = new BufferedImage(size.x, size.y,
+                    BufferedImage.TYPE_4BYTE_ABGR);
+            selection.setOutlineZoom(zoom);
+            Rectangle rect = new Rectangle(0, 0, width, height);
+            reconstructZoomedImage(rect);
+            informAboutSize();
+            informAboutUpdate(rect);
+            for (InfoListener infoListener : infoListeners) {
+                infoListener.zoomChanged(this.zoom.getZoom());
             }
-            return this.zoom.getZoom();
+            changeListener.zoomChanged(zoom);
         }
+
+        ThreadBlocker.getInstance().unblock();
+
+        return this.zoom.getZoom();
     }
 
     @Override
@@ -570,17 +582,13 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable,
 
     @Override
     public int transformCoordinate(int coordinate) {
-        synchronized (this) {
-            return zoom.transformCoordinate(coordinate);
-        }
+        return zoom.transformCoordinate(coordinate);
     }
 
     @Override
     public Point transformPoint(Point point) {
-        synchronized (this) {
-            return new Point(transformCoordinate(point.x),
-                    transformCoordinate(point.y));
-        }
+        return new Point(transformCoordinate(point.x),
+                transformCoordinate(point.y));
     }
 
     @Override
@@ -593,78 +601,88 @@ public class CanvasImage implements Runnable, Networkable, Paintable, Zoomable,
 
     @Override
     public Set<InfoListener> getInfoListeners() {
-        synchronized (this) {
-            return infoListeners;
-        }
+        return infoListeners;
     }
 
     @Override
     public void addInfoListener(InfoListener listener) {
-        synchronized (this) {
+        synchronized (infoListeners) {
             infoListeners.add(listener);
         }
     }
 
     @Override
     public boolean removeInfoListener(InfoListener listener) {
-        synchronized (this) {
+        synchronized (infoListeners) {
             return infoListeners.remove(listener);
         }
     }
 
     @Override
     public BufferedImage getImageSelection() {
-        synchronized (this) {
-            BufferedImage image = new BufferedImage(width, height,
-                    BufferedImage.TYPE_4BYTE_ABGR);
-            normalImage.copyData(image.getRaster());
-            return selection.filterPaint(0, 0, image);
-        }
+        ThreadBlocker.getInstance().block();
+
+        BufferedImage image = new BufferedImage(width, height,
+                BufferedImage.TYPE_4BYTE_ABGR);
+        normalImage.copyData(image.getRaster());
+        BufferedImage result = selection.filterPaint(0, 0, image);
+
+        ThreadBlocker.getInstance().unblock();
+
+        return result;
     }
 
     @Override
     public BufferedImage getSelectedLayerImageSelection() {
-        synchronized (this) {
-            if (selectedLayer == null) {
-                return null;
-            }
+        BufferedImage result = null;
+
+        if (selectedLayer != null) {
+            ThreadBlocker.getInstance().block();
+
             BufferedImage img = reconstructNormalImageLayer(new Rectangle(0, 0,
                     width, height), selectedLayer);
-            return selection.filterPaint(0, 0, img);
+            result = selection.filterPaint(0, 0, img);
+
+            ThreadBlocker.getInstance().unblock();
         }
+
+        return result;
     }
 
     @Override
     public BufferedImage getSelectionImage() {
-        synchronized (this) {
-            BufferedImage src = selection.getSelectionFilterImage();
-            BufferedImage dst = new BufferedImage(src.getWidth(), src.
-                    getHeight(), src.getType());
-            src.copyData(dst.getRaster());
-            return dst;
-        }
+        ThreadBlocker.getInstance().block();
+
+        BufferedImage src = selection.getSelectionFilterImage();
+        BufferedImage dst = new BufferedImage(src.getWidth(), src.
+                getHeight(), src.getType());
+        src.copyData(dst.getRaster());
+
+        ThreadBlocker.getInstance().unblock();
+
+        return dst;
     }
 
     @Override
     public void selectAll() {
-        synchronized (this) {
-            selection.update(null);
-            changeListener.selectionChange();
-        }
+        ThreadBlocker.getInstance().block();
+        selection.update(null);
+        changeListener.selectionChange();
+        //FIXME: repaint?
+        ThreadBlocker.getInstance().unblock();
     }
 
     @Override
     public void select(SelectionUpdate selectoinUpdate) {
-        synchronized (this) {
-            selection.update(selectoinUpdate);
-            changeListener.selectionChange();
-        }
+        ThreadBlocker.getInstance().block();
+        selection.update(selectoinUpdate);
+        changeListener.selectionChange();
+        //FIXME: repaint?
+        ThreadBlocker.getInstance().unblock();
     }
 
     @Override
     public boolean isSelectedAll() {
-        synchronized (this) {
-            return selection.isSelectedAll();
-        }
+        return selection.isSelectedAll();
     }
 }

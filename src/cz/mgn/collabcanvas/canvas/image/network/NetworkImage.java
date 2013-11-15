@@ -18,7 +18,6 @@
  * You should have received a copy of the GNU General Public License
  * along with Collab canvas.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package cz.mgn.collabcanvas.canvas.image.network;
 
 import cz.mgn.collabcanvas.canvas.image.imageprocessing.ImageProcessor;
@@ -150,7 +149,6 @@ public class NetworkImage {
                 }
             }
         }
-
     }
 
     protected void changesArrayUpdate(boolean[][] array, int x, int y, int width, int height) {
@@ -182,37 +180,31 @@ public class NetworkImage {
     }
 
     public void paintRemove(BufferedImage remove, int x, int y) {
-        synchronized (this) {
-            anyChange = true;
-            ImageProcessor.paintRemove(imageRemove, remove, x, y);
-            ImageProcessor.removeFromImage(layerImageCopy, remove, x, y);
-            changesArrayUpdate(changesRemove, x, y, remove.getWidth(), remove.getHeight());
-        }
+        anyChange = true;
+        ImageProcessor.paintRemove(imageRemove, remove, x, y);
+        ImageProcessor.removeFromImage(layerImageCopy, remove, x, y);
+        changesArrayUpdate(changesRemove, x, y, remove.getWidth(), remove.getHeight());
     }
 
     public void paintAdd(BufferedImage add, int x, int y) {
-        synchronized (this) {
-            anyChange = true;
-            ImageProcessor.paintAdd(imageAdd, add, x, y);
-            ImageProcessor.addToImage(layerImageCopy, add, x, y);
-            changesArrayUpdate(changesAdd, x, y, add.getWidth(), add.getHeight());
-        }
+        anyChange = true;
+        ImageProcessor.paintAdd(imageAdd, add, x, y);
+        ImageProcessor.addToImage(layerImageCopy, add, x, y);
+        changesArrayUpdate(changesAdd, x, y, add.getWidth(), add.getHeight());
     }
 
     public BufferedImage addLocalChanges(BufferedImage source, int x, int y, int width, int height) {
-        synchronized (this) {
-            if (isLayerImageInvalid) {
-                isLayerImageInvalid = false;
-                layerImageCopy = new BufferedImage(source.getWidth(), source.getHeight(), source.getType());
-                source.copyData(layerImageCopy.getRaster());
-                editsToImage(layerImageCopy, x, y, width, height);
-                if (anyChange) {
-                    addToImage(layerImageCopy, x, y, width, height);
-                    removeFromImage(layerImageCopy, x, y, width, height);
-                }
+        if (isLayerImageInvalid) {
+            isLayerImageInvalid = false;
+            layerImageCopy = new BufferedImage(source.getWidth(), source.getHeight(), source.getType());
+            source.copyData(layerImageCopy.getRaster());
+            editsToImage(layerImageCopy, x, y, width, height);
+            if (anyChange) {
+                addToImage(layerImageCopy, x, y, width, height);
+                removeFromImage(layerImageCopy, x, y, width, height);
             }
-            return layerImageCopy;
         }
+        return layerImageCopy;
     }
 
     protected void invalidate() {
@@ -220,15 +212,13 @@ public class NetworkImage {
     }
 
     public void updateReceived(int updateID) {
-        synchronized (this) {
-            for (int i = 0; i < edits.size(); i++) {
-                if (edits.get(i).getUpdateID() == updateID) {
-                    edits.remove(i);
-                    return;
-                }
+        for (int i = 0; i < edits.size(); i++) {
+            if (edits.get(i).getUpdateID() == updateID) {
+                edits.remove(i);
+                return;
             }
-            invalidate();
         }
+        invalidate();
     }
 
     public void update() {
