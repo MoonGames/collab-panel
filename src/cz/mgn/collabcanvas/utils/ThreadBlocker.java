@@ -37,15 +37,18 @@ public class ThreadBlocker {
     }
 
     public synchronized void block() {
-        while (blocked) {
+        /*while (blocked) {
             Thread.yield();
-        }
-        blocked = true;
+        }*/
+        setBlocked(true);
     }
 
-
     public void unblock() {
-        blocked = false;
-        this.notifyAll();
+        setBlocked(false);
+        //this.notify();
+    }
+
+    protected synchronized void setBlocked(boolean blocked) {
+        this.blocked = blocked;
     }
 }

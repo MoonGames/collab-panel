@@ -18,10 +18,10 @@
  * You should have received a copy of the GNU General Public License
  * along with Collab canvas.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package cz.mgn.collabcanvas;
 
 import cz.mgn.collabcanvas.examples.ExampleOffline;
+import cz.mgn.collabcanvas.examples.ExampleOnline;
 
 /**
  *
@@ -30,11 +30,17 @@ import cz.mgn.collabcanvas.examples.ExampleOffline;
 public class Main {
 
     public static void main(String args[]) {
-        test();
+        testOnline();
+        //testOffline();
     }
 
     @Deprecated
-    public static void test() {
+    public static void testOffline() {
         new ExampleOffline();
+    }
+
+    @Deprecated
+    public static void testOnline() {
+        new ExampleOnline();
     }
 }
