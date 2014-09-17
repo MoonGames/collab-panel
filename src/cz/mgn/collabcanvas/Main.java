@@ -22,6 +22,10 @@ package cz.mgn.collabcanvas;
 
 import cz.mgn.collabcanvas.examples.ExampleOffline;
 import cz.mgn.collabcanvas.examples.ExampleOnline;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 /**
  *
@@ -30,8 +34,19 @@ import cz.mgn.collabcanvas.examples.ExampleOnline;
 public class Main {
 
     public static void main(String args[]) {
+        setUpLoggers();
         testOnline();
         //testOffline();
+    }
+
+    protected static void setUpLoggers() {
+        Logger logger = Logger.getLogger("cz.mgn.collabcanvas");
+        logger.setLevel(Level.FINER);
+
+        ConsoleHandler handler = new ConsoleHandler();
+        handler.setFormatter(new SimpleFormatter());
+        handler.setLevel(Level.ALL);
+        logger.addHandler(handler);
     }
 
     @Deprecated

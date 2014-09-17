@@ -36,6 +36,7 @@ import java.awt.Rectangle;
 import java.awt.event.*;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Logger;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
@@ -46,6 +47,8 @@ import javax.swing.JScrollPane;
 public class CanvasPanel extends JPanel implements Listenable,
         CanvasImageChangeListener, MouseListener, MouseMotionListener,
         MouseWheelListener {
+
+    protected static final Logger LOGGER = Logger.getLogger(CanvasPanel.class.getName());
 
     protected CanvasImage canvasImage;
     protected JScrollPane scrollPane;
@@ -61,6 +64,8 @@ public class CanvasPanel extends JPanel implements Listenable,
     }
 
     private void init() {
+        LOGGER.info("Initializing...");
+
         keyHandler = new CanvasKeyHandler(panelListeners);
 
         setLayout(new BorderLayout());
@@ -74,6 +79,8 @@ public class CanvasPanel extends JPanel implements Listenable,
 
         scrollPane = new JScrollPane(canvas);
         add(scrollPane, BorderLayout.CENTER);
+
+        LOGGER.finer("Initialized");
     }
 
     public Visible getVisible() {
@@ -90,6 +97,7 @@ public class CanvasPanel extends JPanel implements Listenable,
 
     public void destroy() {
         synchronized(this) {
+            LOGGER.info("Destroing...");
             panelListeners.clear();
         }
     }
@@ -104,6 +112,7 @@ public class CanvasPanel extends JPanel implements Listenable,
     @Override
     public void addListener(CollabPanelListener listener) {
         synchronized (this) {
+            LOGGER.finer("Adding listener");
             panelListeners.add(listener);
         }
     }
@@ -111,33 +120,40 @@ public class CanvasPanel extends JPanel implements Listenable,
     @Override
     public boolean removeListener(CollabPanelListener listener) {
         synchronized (this) {
+            LOGGER.finer("Removing listener");
             return panelListeners.remove(listener);
         }
     }
 
     @Override
     public void change(Rectangle rect) {
+        LOGGER.finer("Change");
         canvas.change(rect);
     }
 
     @Override
     public void selectionChange() {
+        LOGGER.finer("Selection change");
         canvas.selectionChange();
     }
 
     @Override
     public void imageResized(int width, int height) {
+        LOGGER.finer("Image resized " + width
+            + "x" + height);
         canvas.imageResized(width, height);
     }
 
     @Override
     public void zoomChanged(float zoom) {
+        LOGGER.finer("Zoom changed " + zoom);
         canvas.zoomChanged(zoom);
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
         synchronized (this) {
+            LOGGER.finer("Mouse clicked");
             if (e.getSource() == canvas) {
                 CanvasMouseEvent cme = new CanvasMouseEvent(e.isAltDown(), e.isShiftDown(), e.isControlDown(),
                         canvas.translateMousePoint(e.getPoint()), CollabPanelMouseEvent.TYPE_CLICK, e.getButton(), 0);
@@ -151,6 +167,7 @@ public class CanvasPanel extends JPanel implements Listenable,
     @Override
     public void mousePressed(MouseEvent e) {
         synchronized (this) {
+            LOGGER.finer("Mouse pressed");
             if (e.getSource() == canvas) {
                 CanvasMouseEvent cme = new CanvasMouseEvent(e.isAltDown(), e.isShiftDown(), e.isControlDown(),
                         canvas.translateMousePoint(e.getPoint()), CollabPanelMouseEvent.TYPE_PRESS, e.getButton(), 0);
@@ -164,6 +181,7 @@ public class CanvasPanel extends JPanel implements Listenable,
     @Override
     public void mouseReleased(MouseEvent e) {
         synchronized (this) {
+            LOGGER.finer("Mouse released");
             if (e.getSource() == canvas) {
                 CanvasMouseEvent cme = new CanvasMouseEvent(e.isAltDown(), e.isShiftDown(), e.isControlDown(),
                         canvas.translateMousePoint(e.getPoint()), CollabPanelMouseEvent.TYPE_RELEASE, e.getButton(), 0);
@@ -185,6 +203,7 @@ public class CanvasPanel extends JPanel implements Listenable,
     @Override
     public void mouseDragged(MouseEvent e) {
         synchronized (this) {
+            LOGGER.finest("Mouse dragged");
             if (e.getSource() == canvas) {
                 CanvasMouseEvent cme = new CanvasMouseEvent(e.isAltDown(), e.isShiftDown(), e.isControlDown(),
                         canvas.translateMousePoint(e.getPoint()), CollabPanelMouseEvent.TYPE_DRAG, e.getButton(), 0);
@@ -198,6 +217,7 @@ public class CanvasPanel extends JPanel implements Listenable,
     @Override
     public void mouseMoved(MouseEvent e) {
         synchronized (this) {
+            LOGGER.finest("Mouse moved");
             if (e.getSource() == canvas) {
                 CanvasMouseEvent cme = new CanvasMouseEvent(e.isAltDown(), e.isShiftDown(), e.isControlDown(),
                         canvas.translateMousePoint(e.getPoint()), CollabPanelMouseEvent.TYPE_MOVE, e.getButton(), 0);
@@ -211,6 +231,7 @@ public class CanvasPanel extends JPanel implements Listenable,
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
         synchronized (this) {
+            LOGGER.finest("Mouse wheel moved");
             if (e.getSource() == canvas) {
                 CanvasMouseEvent cme = new CanvasMouseEvent(e.isAltDown(), e.isShiftDown(), e.isControlDown(),
                         canvas.translateMousePoint(e.getPoint()), CollabPanelMouseEvent.TYPE_WHEEL, e.getButton(), e.getWheelRotation());
