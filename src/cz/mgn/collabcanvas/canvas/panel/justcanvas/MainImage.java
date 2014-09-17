@@ -27,6 +27,8 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -34,6 +36,7 @@ import java.awt.image.BufferedImage;
  */
 public class MainImage {
 
+    private final static Logger LOGGER = Logger.getLogger(MainImage.class.getName());
     protected static final int ALPHA_BACKGROUND_BOX_SIZE = 8;
     protected static final int ALPHA_BACKGROUND_COLOR_A = 0xff999999;
     protected static final int ALPHA_BACKGROUND_COLOR_B = 0xff666666;
@@ -45,6 +48,7 @@ public class MainImage {
     }
 
     protected void generateAlpha() {
+        LOGGER.log(Level.FINEST, "Generating alpha background");
         int w = image.getWidth() - 2;
         int h = image.getHeight() - 2;
         alpha = new BufferedImage(w, h, BufferedImage.TYPE_4BYTE_ABGR);
@@ -79,6 +83,7 @@ public class MainImage {
 
     public void reconstruct(Rectangle rect, CanvasImage image) {
         synchronized (this) {
+            LOGGER.log(Level.FINEST, "Reconstructing image");
             Graphics2D g = (Graphics2D) this.image.getGraphics();
             g.clipRect(1, 1, this.image.getWidth() - 2, this.image.getHeight() - 2);
             int x1 = rect.x;
@@ -90,11 +95,13 @@ public class MainImage {
             g.drawImage(image.getZoomedImage(), x1 + 1, y1 + 1, x2 + 1, y2 + 1, x1, y1, x2, y2, null);
             g.drawImage(image.getSelection().getSelectionOutline(), x1 + 1, y1 + 1, x2 + 1, y2 + 1, x1, y1, x2, y2, null);
             g.dispose();
+            LOGGER.log(Level.FINEST, "Reconstructing done");
         }
     }
 
     public void imageResized(int width, int height) {
         synchronized (this) {
+            LOGGER.log(Level.FINER, "Image resized");
             image = new BufferedImage(width + 2, height + 2, BufferedImage.TYPE_4BYTE_ABGR);
             Graphics2D g = (Graphics2D) image.getGraphics();
             g.setColor(Color.WHITE);
